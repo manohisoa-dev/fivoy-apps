@@ -24,23 +24,6 @@ const SalesPage = () => {
 
   const [saving, setSaving] = useState(false);
 
-
-  // Charger depuis localStorage
-  useEffect(() => {
-    const initial = loadFromStorage(STORAGE_KEY, []);
-    setSales(initial);
-      (async () => {
-    try {
-      const remote = await fetchSales();
-      setSales(remote);
-    } catch {
-      // fallback local si Supabase non configuré
-      const local = loadFromStorage(STORAGE_KEY, []);
-      setSales(local);
-    }
-  })();
-  }, []);
-
   const loadPage = async () => {
     setLoading(true);
     try {
