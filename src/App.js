@@ -5,13 +5,14 @@ import PosterGenerator from './PosterGenerator';
 import SalesPage from './modules/sales/SalesPage';
 import Footer from "./Footer";
 import ExpensesPage from "./modules/expenses/ExpensesPage";
+import LoadingOverlay from './components/LoadingOverlay';
 
 function App() {
   const [currentApp, setCurrentApp] = useState('counter');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <div className="App">
+    <div className="App"> 
       {/* Navigation entre les apps */}
       <div className="bg-gray-800 text-white p-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -74,6 +75,8 @@ function App() {
           </nav>
         </div>
       </div>
+
+      <LoadingOverlay />
 
       {/* Affichage de l'app sélectionnée */}
       {currentApp === 'counter' && <CounterApp />}

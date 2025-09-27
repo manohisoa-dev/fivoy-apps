@@ -4,10 +4,12 @@ import SaleForm from "./SaleForm";
 import SalesTable from "./SalesTable";
 import { loadFromStorage, saveToStorage, exportArrayToCSV } from "../../utils/storage";
 import { fetchSales, createSale, updateSale, deleteSale as deleteSaleDb } from "./salesApi";
+import { useLoadingStore } from '../../store/loading';
 
 const STORAGE_KEY = "fivoy_sales_v1";
 
 const SalesPage = () => {
+  const { withLoading } = useLoadingStore.getState();
   const [sales, setSales] = useState([]);
   const [query, setQuery] = useState("");
   const [editingSale, setEditingSale] = useState(null);
@@ -40,34 +42,36 @@ const SalesPage = () => {
   }, []);
 
   const loadPage = async () => {
-  setLoading(true);
-  try {
-    const { fetchSalesByDatePaged } = await import("./salesApi");
-    const res = await fetchSalesByDatePaged({
-      date: selectedDate,
-      page,
-      pageSize,
-      q: query,
-    });
-    setSales(res.sales);
-    setTotalCount(res.totalCount);
-    setTotalJour(res.totalJour);
-  } catch (e) {
-    console.warn("Chargement Supabase impossible, fallback local:", e);
-    const local = loadFromStorage(STORAGE_KEY, []);
-    // Filtre local approximatif
-    const filteredLocal = local
-      .filter(v => v.date === selectedDate)
-      .filter(v =>
-        !query.trim()
-          ? true
-          : [v.client, v.modePaiement].filter(Boolean).some(f => f.toLowerCase().includes(query.toLowerCase()))
-      );
-    setTotalCount(filteredLocal.length);
-    setTotalJour(filteredLocal.reduce((sum, v) => sum + Number(v.total || 0), 0));
-    const start = (page - 1) * pageSize;
-    setSales(filteredLocal.slice(start, start + pageSize));
-  } finally {
+    setLoading(true);
+    try {
+      await withLoading(async () => {
+        const { fetchSalesByDatePaged } = await import("./salesApi");
+        const res = await fetchSalesByDatePaged({
+          date: selectedDate,
+          page,
+          pageSize,
+          q: query,
+        });
+        setSales(res.sales);
+        setTotalCount(res.totalCount);
+        setTotalJour(res.totalJour);
+      });
+    } catch (e) {
+      console.warn("Chargement Supabase impossible, fallback local:", e);
+      const local = loadFromStorage(STORAGE_KEY, []);
+      // Filtre local approximatif
+      const filteredLocal = local
+        .filter(v => v.date === selectedDate)
+        .filter(v =>
+          !query.trim()
+            ? true
+            : [v.client, v.modePaiement].filter(Boolean).some(f => f.toLowerCase().includes(query.toLowerCase()))
+        );
+      setTotalCount(filteredLocal.length);
+      setTotalJour(filteredLocal.reduce((sum, v) => sum + Number(v.total || 0), 0));
+      const start = (page - 1) * pageSize;
+      setSales(filteredLocal.slice(start, start + pageSize));
+    } finally {
     setLoading(false);
   }
 };

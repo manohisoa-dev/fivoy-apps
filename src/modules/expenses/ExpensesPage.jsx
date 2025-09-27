@@ -3,6 +3,7 @@ import { DollarSign, Plus, TrendingDown, Calendar, BarChart3, Filter, ChevronLef
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import ExpenseForm from "./ExpenseForm";
 import { supabase } from "../../lib/supabaseClient";
+import { useLoadingStore } from '../../store/loading';
 
 
 // Couleurs pour le graphique en secteurs
@@ -17,6 +18,8 @@ const ExpensesPage = () => {
   const [todayExpenses, setTodayExpenses] = useState(0);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [showTotalDetails, setShowTotalDetails] = useState(false);
+
+  const { withLoading } = useLoadingStore.getState();
   
   // États pour la pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -29,7 +32,8 @@ const ExpensesPage = () => {
 
   const loadExpenses = async () => {
     try {
-      const { data, error } = await supabase
+      await withLoading(async () => {
+        const { data, error } = await supabase
         .from("expenses")
         .select("*")
         .order("date", { ascending: false })
@@ -54,7 +58,7 @@ const ExpensesPage = () => {
         .filter(expense => expense.date === today)
         .reduce((sum, expense) => sum + Number(expense.amount), 0);
       setTodayExpenses(todayTotal);
-      
+      });   
     } catch (err) {
       console.error("Erreur réseau:", err);
     }

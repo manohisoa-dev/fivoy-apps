@@ -5,8 +5,11 @@ import { supabase } from "./lib/supabaseClient";
 
 // Dans CounterApp.js, ajoutez cet import au début du fichier :
 import { createSale } from './modules/sales/salesApi';
+import { useLoadingStore } from './store/loading';
 
 const FivoyCounterApp = () => {
+  const { withLoading } = useLoadingStore.getState();
+  
   // États pour l'heure actuelle
   const [currentTime, setCurrentTime] = useState('');
   
@@ -77,39 +80,41 @@ const FivoyCounterApp = () => {
     }
 
     try {
-      // Utiliser directement calculatedAmount au lieu d'extraire du JSX
-      const saleData = {
-        date: new Date().toISOString().slice(0, 10), // Format YYYY-MM-DD
-        client: null,
-        modePaiement: "Espèces",
-        notes: `Connexion internet - ${connectionMinutes} minutes`,
-        total: calculatedAmount,
-        items: [
-          {
-            name: "Connexion internet",
-            qty: 1,
-            price: calculatedAmount
-          }
-        ]
-      };
+      await withLoading(async () => {
+        // Utiliser directement calculatedAmount au lieu d'extraire du JSX
+        const saleData = {
+          date: new Date().toISOString().slice(0, 10), // Format YYYY-MM-DD
+          client: null,
+          modePaiement: "Espèces",
+          notes: `Connexion internet - ${connectionMinutes} minutes`,
+          total: calculatedAmount,
+          items: [
+            {
+              name: "Connexion internet",
+              qty: 1,
+              price: calculatedAmount
+            }
+          ]
+        };
 
-      const result = await createSale(saleData);
+        const result = await createSale(saleData);
 
-      if (result) {
-        Swal.fire({
-          title: "Vente sauvegardée !",
-          text: `Le montant de ${calculatedAmount.toLocaleString('fr-FR')} Ar a été ajouté aux ventes.`,
-          icon: "success",
-          confirmButtonText: "OK",
-        });
+        if (result) {
+          Swal.fire({
+            title: "Vente sauvegardée !",
+            text: `Le montant de ${calculatedAmount.toLocaleString('fr-FR')} Ar a été ajouté aux ventes.`,
+            icon: "success",
+            confirmButtonText: "OK",
+          });
 
-        // Reset le résultat après sauvegarde
-        setConnectionResult('');
-        setStartHour('');
-        setStartMinute('');
-        setCalculatedAmount(0);
-        setConnectionMinutes(0);
-      }
+          // Reset le résultat après sauvegarde
+          setConnectionResult('');
+          setStartHour('');
+          setStartMinute('');
+          setCalculatedAmount(0);
+          setConnectionMinutes(0);
+        }
+      });
     } catch (error) {
       console.error('Erreur lors de la sauvegarde :', error);
       Swal.fire({
