@@ -1,2 +1,2 @@
 # fivoy-apps
-SaaS de gestion quotidienne pour boutiques de films - Ventes, dÃ©penses, avances employÃ©s et rapports en temps rÃ©el. Laravel + React + Tailwind.
+SaaS de gestion quotidienne pour boutiques de films - Ventes, dépenses, avances employés et rapports en temps réel. Laravel + React + Tailwind.
