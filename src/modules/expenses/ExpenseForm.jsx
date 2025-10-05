@@ -3,14 +3,17 @@ import React, { useState } from "react";
 // Composant ExpenseForm intégré
 const ExpenseForm = ({ onSave, onCancel, initialExpense }) => {
   const categories = [
-    "Essence",
-    "Repas midi",
+    "Approvisionnement stock",
+    "Avance sur salaire",
     "Dîner",
+    "Divers",
+    "Essence",
     "Goûter enfants",
     "Main d'œuvre",
     "Pièces cyclo",
-    "Divers",
-  ];
+    "Randry",
+    "Repas midi",
+  ];  
 
   const [expense, setExpense] = useState(
     initialExpense || {
