@@ -4,31 +4,31 @@ const CATALOG_STORAGE_KEY = "fivoy_price_catalog_v1";
 // Quelques items de départ (tu peux en ajouter autant que tu veux).
 // ⚠️ Les unités aident à l'UX (ex : "minute", "épisode", "page", "pièce"...)
 const DEFAULT_CATALOG = [
-  // --- Tes précisions récentes ---
+  // --- Précisions récentes ---
   { id: "film",      name: "Film",        unit: "pièce",   price: 300 },
   { id: "serie_ep",  name: "Série (par épisode)", unit: "épisode", price: 100 },
   { id: "connexion", name: "Connexion internet (par minute)", unit: "minute", price: 50 },
 
-  // --- Exemples (tu peux ajuster selon ton image de tarifs) ---
-  { id: "pc_noir_a4_recto",   name: "Photocopie NOIR A4 (Recto)",        unit: "page",   price: 200 },
-  { id: "pc_noir_a4_rectov",  name: "Photocopie NOIR A4 - CIN N&B (Recto-verso)",  unit: "page",   price: 300 },
+  // --- Exemples (a ajuster selon image de tarifs) ---
+  { id: "pc_noir_a4_recto",     name: "Ph/copie Ou Impression NOIR A4 (Recto)",        unit: "page",   price: 200 },
+  { id: "pc_noir_a4_rectov",    name: "Ph/copie Ou Impression NOIR A4 - CIN N&B (Recto-verso)",  unit: "page",   price: 300 },
 
-  { id: "pc_coul_a4_recto",   name: "Photocopie COULEUR A4 (Recto)",     unit: "page",   price: 300 },
-  { id: "pc_coul_a4_rectov",  name: "Photocopie COULEUR A4 - CIN (Recto-verso)", unit: "page", price: 500 },
+  { id: "pc_coul_a4_recto",     name: "Ph/copie Ou Impression COULEUR A4 (Recto)",     unit: "page",   price: 300 },
+  { id: "pc_coul_a4_rectov",    name: "Ph/copie Ou Impression COULEUR A4 - CIN (Recto-verso) - POSTER", unit: "page", price: 500 },
 
-  { id: "imp_noir_a4_recto",  name: "Impression NOIR A4 (Recto)",        unit: "page",   price: 200 },
-  { id: "imp_noir_a4_rectov", name: "Impression NOIR A4 (Recto-verso)",  unit: "page",   price: 300 },
-  { id: "imp_coul_a4_recto",  name: "Impression COULEUR A4 (Recto)",     unit: "page",   price: 300 },
-  { id: "imp_coul_a4_rectov", name: "Impression COULEUR A4 (Recto-verso)",unit:"page",   price: 500 },
+  { id: "imp_photo_10_15_4",    name: "Impression PHOTO 10x15 cm (4 photos)",        unit: "page",   price: 700 },
+  { id: "imp_photo_10_15_6",    name: "Impression PHOTO 10x15 cm (6 photos)",        unit: "page",   price: 1000 },
+  { id: "imp_capture_10_15_4",  name: "Impression & CAPTURE 10x15 cm (4 photos)",     unit: "page",   price: 1000 },
+  { id: "imp_capture_10_15_6",  name: "Impression CAPTURE 10x15 cm (6 photos)",     unit: "page",   price: 1500 },
 
-  { id: "plastif_a4",         name: "Plastification A4",                 unit: "pièce",  price: 2000 },
-  { id: "plastif_a5",         name: "Plastification A5",                 unit: "pièce",  price: 1000 },
-  { id: "plastif_cin",        name: "Plastification CIN/vignette",       unit: "pièce",  price: 800 },
+  { id: "plastif_a4",           name: "Plastification A4",                 unit: "pièce",  price: 2000 },
+  { id: "plastif_a5",           name: "Plastification A5",                 unit: "pièce",  price: 1000 },
+  { id: "plastif_cin",          name: "Plastification CIN/vignette",       unit: "pièce",  price: 800 },
 
-  { id: "cv_simple",          name: "Manambotra CV — Tsotra",            unit: "pièce",  price: 1000 },
-  { id: "cv_style",           name: "Manambotra CV — Stylé",             unit: "pièce",  price: 2000 },
+  { id: "cv_simple",            name: "Manambotra CV — Tsotra",            unit: "pièce",  price: 1000 },
+  { id: "cv_style",             name: "Manambotra CV — Stylé",             unit: "pièce",  price: 2000 },
 
-  { id: "envoi_mail",         name: "Envoi e-mail",                      unit: "pièce",  price: 1000 },
+  { id: "envoi_mail",           name: "Envoi e-mail",                      unit: "pièce",  price: 1000 },
 ];
 
 // --- API ---
