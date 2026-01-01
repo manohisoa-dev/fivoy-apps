@@ -3,7 +3,7 @@ export default function Footer() {
     <footer className="w-full text-center text-sm text-gray-600">
       © {new Date().getFullYear()}  Copyright – Fivoy | Développé par 
       <a
-        href="https://www.facebook.com/rakotondrasata.andriamanohisoa" 
+        href="https://manou.agnaro.io/" 
         target="_blank"
         rel="noopener noreferrer"
         className="text-blue-600 hover:underline"

@@ -5,6 +5,8 @@ import SalesTable from "./SalesTable";
 import { loadFromStorage, saveToStorage, exportArrayToCSV } from "../../utils/storage";
 import { fetchSales, createSale, updateSale, deleteSale as deleteSaleDb } from "./salesApi";
 import { useLoadingStore } from '../../store/loading';
+import CaisseJournaliere from "./CaisseJournaliere";
+import { supabase, isSupabaseReady } from "../../lib/supabaseClient";
 
 const STORAGE_KEY = "fivoy_sales_v1";
 
@@ -255,6 +257,13 @@ useEffect(() => {
         {/* Liste + Form */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <div className="lg:col-span-3">
+            {/* Caisse Journaliere */}
+            <div className="mb-4">
+              <CaisseJournaliere 
+                selectedDate={selectedDate}  // ← Correction : c'était "dateFilter"
+                supabase={supabase}          // ← Correction : c'était "supabaseClient"
+              />
+            </div>
             <div className="bg-white rounded-lg shadow-lg p-4">
             <SalesTable
                 sales={filtered}

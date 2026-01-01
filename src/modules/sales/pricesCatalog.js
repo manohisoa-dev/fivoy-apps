@@ -7,7 +7,7 @@ const DEFAULT_CATALOG = [
   // --- Précisions récentes ---
   { id: "film",      name: "Film",        unit: "pièce",   price: 300 },
   { id: "serie_ep",  name: "Série (par épisode)", unit: "épisode", price: 100 },
-  { id: "connexion", name: "Connexion internet (par minute)", unit: "minute", price: 50 },
+  { id: "connexion", name: "Connexion internet (par minute)", unit: "minute", price: 33.33 },
 
   // --- Exemples (a ajuster selon image de tarifs) ---
   { id: "pc_noir_a4_recto",     name: "Ph/copie Ou Impression NOIR A4 (Recto)",        unit: "page",   price: 200 },

@@ -53,8 +53,8 @@ const FivoyCounterApp = () => {
 
 
   // Configuration des prix
-  const PRICE_PER_MINUTE = 50; // 50 Ar par minute de connexion
-  const MONEY_DECREMENT = 5; // 5 Ar toutes les 6 secondes
+  const PRICE_PER_MINUTE = 33.33; // 33,33 Ar par minute de connexion
+  const MONEY_DECREMENT = 3.33; // 3,33 Ar toutes les 6 secondes
 
   const [calculatedAmount, setCalculatedAmount] = useState(0);
   const [connectionMinutes, setConnectionMinutes] = useState(0);

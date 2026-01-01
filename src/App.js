@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { PrinterCheck, Clock, ShoppingCart, DollarSign, Menu, ClipboardList } from 'lucide-react';
+import { PrinterCheck, Clock, ShoppingCart, DollarSign, Menu, ClipboardList, Film } from 'lucide-react';
+import LibraryPage from './modules/library/LibraryPage';
 import CounterApp from './CounterApp';
 import PosterGenerator from './PosterGenerator';
 import SalesPage from './modules/sales/SalesPage';
@@ -8,6 +9,7 @@ import Orders from './modules/orders/Orders';
 import Footer from "./Footer";
 import LoadingOverlay from './components/LoadingOverlay';
 import { supabase } from './lib/supabaseClient';
+import WatermarkStudio from './WatermarkStudio.jsx';
 
 function App() {
   const [currentApp, setCurrentApp] = useState('counter');
@@ -209,6 +211,7 @@ function App() {
               {navBtn('expenses', 'Dépenses', DollarSign)}
               {navBtn('poster', 'Posters PDF', PrinterCheck)}
               {navBtn('orders', 'Commandes', ClipboardList)}
+              {navBtn('library', 'Bibliothèque', Film)}
             </div>
           </nav>
         </div>
@@ -228,6 +231,7 @@ function App() {
           onUpdateStatus={handleUpdateStatus}
         />
       )}
+      {currentApp === 'library' && <LibraryPage />}
 
       <Footer />
     </div>
