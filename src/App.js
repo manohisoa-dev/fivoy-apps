@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { PrinterCheck, Clock, ShoppingCart, DollarSign, Menu, ClipboardList, Film } from 'lucide-react';
+import { PrinterCheck, Clock, ShoppingCart, DollarSign, Menu, ClipboardList, Film, BarChart3  } from 'lucide-react';
 import LibraryPage from './modules/library/LibraryPage';
 import CounterApp from './CounterApp';
 import PosterGenerator from './PosterGenerator';
@@ -10,6 +10,7 @@ import Footer from "./Footer";
 import LoadingOverlay from './components/LoadingOverlay';
 import { supabase } from './lib/supabaseClient';
 import WatermarkStudio from './WatermarkStudio.jsx';
+import DashboardPage from './modules/dashboard/DashboardPage';
 
 function App() {
   const [currentApp, setCurrentApp] = useState('counter');
@@ -191,7 +192,7 @@ function App() {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold">
             <span>Fivoy </span>
-            <span className="hidden lg:inline">Services Imerintsiatosika</span>
+            <span className="hidden lg:inline">Services</span>
           </h1>
 
           {/* Hamburger (mobile) */}
@@ -212,6 +213,7 @@ function App() {
               {navBtn('poster', 'Posters PDF', PrinterCheck)}
               {navBtn('orders', 'Commandes', ClipboardList)}
               {navBtn('library', 'Bibliothèque', Film)}
+              {navBtn('dashboard', 'Tableau de Bord', BarChart3)}
             </div>
           </nav>
         </div>
@@ -232,6 +234,7 @@ function App() {
         />
       )}
       {currentApp === 'library' && <LibraryPage />}
+      {currentApp === 'dashboard' && <DashboardPage />}
 
       <Footer />
     </div>
