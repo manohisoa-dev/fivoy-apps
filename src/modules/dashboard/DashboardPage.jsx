@@ -8,13 +8,15 @@ import { supabase } from "../../lib/supabaseClient";
 const COLORS = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'];
 
 const DashboardPage = () => {
-    const DASHBOARD_PIN = "855217584056";
-    const [isUnlocked, setIsUnlocked] = useState(false);
-    const [pin, setPin] = useState("");
+  const DASHBOARD_PIN = "855217584056";
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [pin, setPin] = useState("");
 
   const [ventes, setVentes] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [ventesItems, setVentesItems] = useState([]);
   
   // Filtres
   const [period, setPeriod] = useState('month'); // 'day', 'week', 'month', 'year'
@@ -86,6 +88,19 @@ const DashboardPage = () => {
         // Calculer le total pour vérification
         const totalVentes = allVentes.reduce((sum, v) => sum + Number(v.total || 0), 0);
         console.log('💰 Total CA de toutes les ventes:', totalVentes.toLocaleString('fr-FR'), 'Ar');
+
+        // Charger les items de ventes
+        console.log('🔄 Chargement des articles vendus...');
+        const { data: itemsData, error: itemsError } = await supabase
+          .from('vente_items')
+          .select('*');
+
+        if (itemsError) {
+          console.error('❌ Erreur items:', itemsError);
+        } else {
+          console.log('📊 Total items chargés:', itemsData?.length || 0);
+          setVentesItems(itemsData || []);
+        }
         
         // Charger les dépenses
         console.log('🔄 Chargement des dépenses...');
@@ -264,6 +279,28 @@ const DashboardPage = () => {
     return Object.entries(methods).map(([name, value]) => ({ name, value }));
   };
 
+  // Répartition des ventes par catégories d'articles
+  const getSalesByCategoryData = () => {
+    const categories = {};
+    
+    // Obtenir les IDs des ventes filtrées
+    const venteIds = filteredData.ventes.map(v => v.id);
+    
+    // Filtrer les items qui correspondent aux ventes filtrées
+    const filteredItems = ventesItems.filter(item => venteIds.includes(item.vente_id));
+    
+    // Grouper par nom d'article
+    filteredItems.forEach(item => {
+      const articleName = item.article_nom || 'Non catégorisé';
+      const total = Number(item.quantite || 0) * Number(item.prix_unitaire || 0);
+      categories[articleName] = (categories[articleName] || 0) + total;
+    });
+    
+    return Object.entries(categories)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  };
+
   // Répartition des dépenses par catégorie
   const getExpensesCategoryData = () => {
     const categories = {};
@@ -276,6 +313,7 @@ const DashboardPage = () => {
 
   const paymentMethodData = getPaymentMethodData();
   const expensesCategoryData = getExpensesCategoryData();
+  const salesByCategoryData = getSalesByCategoryData();
 
   if (!isUnlocked) {
     return (
@@ -512,44 +550,48 @@ const DashboardPage = () => {
 
         {/* Graphiques de répartition */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Répartition par mode de paiement */}
+          {/* Ventes par Catégorie d'Articles */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-blue-600" />
-              Modes de Paiement
+              <ShoppingCart className="w-5 h-5 text-green-600" />
+              Ventes par Catégorie
             </h2>
-            {paymentMethodData.length > 0 ? (
+            {salesByCategoryData.length > 0 ? (
               <>
                 <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
                     <Pie
-                      data={paymentMethodData}
+                      data={salesByCategoryData}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) => {
+                        // Tronquer le nom si trop long
+                        const shortName = name.length > 20 ? name.substring(0, 17) + '...' : name;
+                        return `${shortName} ${(percent * 100).toFixed(0)}%`;
+                      }}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
                     >
-                      {paymentMethodData.map((entry, index) => (
+                      {salesByCategoryData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
                     <Tooltip formatter={(value) => `${Number(value).toLocaleString('fr-FR')} Ar`} />
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="mt-4 space-y-2">
-                  {paymentMethodData.map((item, index) => (
+                <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">
+                  {salesByCategoryData.map((item, index) => (
                     <div key={item.name} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
                         <div 
-                          className="w-3 h-3 rounded"
+                          className="w-3 h-3 rounded flex-shrink-0"
                           style={{ backgroundColor: COLORS[index % COLORS.length] }}
                         ></div>
-                        <span>{item.name}</span>
+                        <span className="truncate" title={item.name}>{item.name}</span>
                       </div>
-                      <span className="font-semibold">{item.value.toLocaleString('fr-FR')} Ar</span>
+                      <span className="font-semibold ml-2 flex-shrink-0">{item.value.toLocaleString('fr-FR')} Ar</span>
                     </div>
                   ))}
                 </div>
