@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Calendar, BarChart3, Filter } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Calendar, BarChart3, Filter, RotateCcw } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 import { supabase } from "../../lib/supabaseClient";
@@ -112,7 +112,13 @@ const DashboardPage = () => {
     } finally {
         setLoading(false);
     }
-    };
+  };
+
+  const resetFilters = () => {
+    setPeriod('month');
+    setCustomStartDate('');
+    setCustomEndDate('');
+  };
 
   // Générateur de données de démo
   const generateDemoData = (type, days) => {
@@ -316,7 +322,7 @@ const DashboardPage = () => {
 
         {/* Filtres de période */}
         <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2">
             <Filter className="w-5 h-5 text-blue-600" />
             <h2 className="text-lg font-semibold">Période d'analyse</h2>
           </div>
@@ -353,6 +359,13 @@ const DashboardPage = () => {
               }`}
             >
               1 an
+            </button>
+            <button
+              onClick={resetFilters}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Réinitialiser
             </button>
           </div>
 
