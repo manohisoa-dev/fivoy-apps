@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabaseClient';
+
 
 export async function searchTitles({ q='', kinds=null, yearFrom=null, yearTo=null, genreIds=null, driveIds=null, page=1, pageSize=50 }) {
   const { data, error } = await supabase.rpc('search_titles', {

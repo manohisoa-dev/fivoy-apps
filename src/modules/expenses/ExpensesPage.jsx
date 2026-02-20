@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { DollarSign, Plus, TrendingDown, Calendar, BarChart3, Filter, ChevronLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import ExpenseForm from "./ExpenseForm";
-import { supabase } from "../../lib/supabaseClient";
 import { useLoadingStore } from '../../store/loading';
+import api from "../../api/api";
 
 
 // Couleurs pour le graphique en secteurs
@@ -33,31 +33,24 @@ const ExpensesPage = () => {
   const loadExpenses = async () => {
     try {
       await withLoading(async () => {
-        const { data, error } = await supabase
-        .from("expenses")
-        .select("*")
-        .order("date", { ascending: false })
-        .order("created_at", { ascending: false });
+        const response = await api.get("/expenses");
+        const expenseData = Array.isArray(response.data)
+          ? response.data
+          : response.data.data;
+
+        setExpenses(expenseData || []);
+        setFilteredExpenses(expenseData || []);
       
-      if (error) {
-        console.error("Erreur lors du chargement:", error);
-        return;
-      }
-      
-      const expenseData = data || [];
-      setExpenses(expenseData);
-      setFilteredExpenses(expenseData);
-      
-      // Calculer le total général
-      const total = expenseData.reduce((sum, expense) => sum + Number(expense.amount), 0);
-      setTotalExpenses(total);
-      
-      // Calculer le total du jour
-      const today = new Date().toISOString().slice(0, 10);
-      const todayTotal = expenseData
-        .filter(expense => expense.date === today)
-        .reduce((sum, expense) => sum + Number(expense.amount), 0);
-      setTodayExpenses(todayTotal);
+        // Calculer le total général
+        const total = expenseData.reduce((sum, expense) => sum + Number(expense.amount), 0);
+        setTotalExpenses(total);
+        
+        // Calculer le total du jour
+        const today = new Date().toISOString().slice(0, 10);
+        const todayTotal = expenseData
+          .filter(expense => expense.date === today)
+          .reduce((sum, expense) => sum + Number(expense.amount), 0);
+        setTodayExpenses(todayTotal);
       });   
     } catch (err) {
       console.error("Erreur réseau:", err);
@@ -114,10 +107,10 @@ const ExpensesPage = () => {
         paid_by: "caisse",
       };
 
-      const { error } = await supabase.from("expenses").insert([payload]);
+      const { error } = await api.post("/expenses", payload);
       
       if (error) {
-        console.error("Erreur Supabase:", error);
+        console.error("Erreur Mysql:", error);
         alert(`Impossible d'enregistrer la dépense: ${error.message}`);
         return;
       }

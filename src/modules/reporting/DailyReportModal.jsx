@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { X, TrendingUp, TrendingDown, DollarSign, Calendar } from "lucide-react";
-import { supabase } from "../../lib/supabaseClient";
 
 const DailyReportModal = ({ onClose, selectedDate, onDateChange }) => {
   const [reportData, setReportData] = useState({

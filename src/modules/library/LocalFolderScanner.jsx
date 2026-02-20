@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { supabase } from '../../lib/supabaseClient';
 
 async function* walkDir(dirHandle) {
   for await (const entry of dirHandle.values()) {
