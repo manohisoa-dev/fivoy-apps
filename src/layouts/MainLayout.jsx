@@ -3,6 +3,7 @@ import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { PrinterCheck, Clock, ShoppingCart, DollarSign, BarChart3, LogOut } from "lucide-react";
 import { User, Building2, ChevronDown } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 const MainLayout = () => {
   const [open, setOpen] = useState(false);
@@ -25,7 +26,8 @@ const MainLayout = () => {
     ? "❌ Essai expiré"
     : `⏳ Essai gratuit • ${trialDaysRemaining} jour${trialDaysRemaining !== 1 ? "s" : ""} restant${trialDaysRemaining !== 1 ? "s" : ""}`;
 
-
+  const location = useLocation();
+  const isPricingPage = location.pathname === "/pricing";
 
   const handleLogout = async () => {
     await logout();
@@ -144,6 +146,34 @@ const MainLayout = () => {
 
       {/* Page */}
       <div className="p-6">
+        {isExpired && !isPricingPage && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center animate-fadeIn">
+              
+              <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                Votre essai est terminé
+              </h2>
+
+              <p className="text-gray-600 mb-6">
+                Continuez à utiliser toutes les fonctionnalités de Fivoy en choisissant un plan adapté à votre boutique.
+              </p>
+
+              <button
+                onClick={() => window.location.href = "/pricing"}
+                className="w-full bg-violet-600 hover:bg-violet-700 text-white py-3 rounded-lg font-semibold transition"
+              >
+                Choisir un plan
+              </button>
+
+              <p className="text-xs text-gray-400 mt-4">
+                Vos données sont conservées en toute sécurité.
+              </p>
+
+            </div>
+          </div>
+        )}
+
+
         <Outlet />
       </div>
 

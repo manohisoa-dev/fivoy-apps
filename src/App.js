@@ -12,6 +12,8 @@ import ProfileSettings from "./modules/profile/ProfileSettings";
 import CounterApp from "./CounterApp";
 import PosterGenerator from "./PosterGenerator";
 
+import PricingPage from "./pages/PricingPage";
+
 function App() {
   return (
     <AuthProvider>
@@ -28,6 +30,7 @@ function App() {
               <Route path="/expenses" element={<ExpensesPage />} />
               <Route path="/posters" element={<PosterGenerator />} />
               <Route path="/profile" element={<ProfileSettings />} />
+              <Route path="/pricing" element={<PricingPage />} />
             </Route>
           </Route>
 

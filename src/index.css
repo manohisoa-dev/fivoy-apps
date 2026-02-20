@@ -24,3 +24,13 @@ code {
 .animate-fadeIn {
   animation: fadeIn 0.6s ease-out;
 }
+
+
+@keyframes popIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.animate-popIn {
+  animation: popIn 0.3s ease-out;
+}
