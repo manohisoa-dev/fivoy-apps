@@ -118,6 +118,30 @@ const MainLayout = () => {
       <div className="p-6">
         <Outlet />
       </div>
+
+      {/* Footer global */}
+      <footer className="bg-gray-100 border-t mt-10">
+        <div className="max-w-7xl mx-auto py-4 px-6 text-center text-sm text-gray-600">
+          © {new Date().getFullYear()} Copyright – {" "}
+          <a
+            href="https://agnaro.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-violet-600 hover:underline font-medium"
+          >
+            Agnarö Webcompany
+          </a>
+           {" "}| Développé par{" "}
+          <a
+            href="https://manou.agnaro.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-violet-600 hover:underline font-medium"
+          >
+            Manou
+          </a>
+        </div>
+      </footer>
     </div>
   );
 };
