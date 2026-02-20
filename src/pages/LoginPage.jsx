@@ -1,8 +1,8 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Swal from "sweetalert2";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle } from "lucide-react";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -19,10 +19,10 @@ function LoginPage() {
     try {
       await login(email, password);
       navigate("/");
-    } catch (err) {
+    } catch {
       Swal.fire({
-        title: "Erreur de connexion",
-        text: "Veuillez vérifier vos identifiants.",
+        title: "Connexion échouée",
+        text: "Vérifiez vos identifiants.",
         icon: "error",
         confirmButtonColor: "#dc2626",
       });
@@ -32,21 +32,41 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className="min-h-screen flex bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
 
-      {/* Center content */}
-      <div className="flex flex-1 items-center justify-center px-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
+      {/* LEFT SIDE BRANDING */}
+      <div className="hidden lg:flex flex-col justify-center w-1/2 px-20 text-white">
+        <h1 className="text-5xl font-bold mb-6">
+          Fivoy
+        </h1>
 
-          {/* Logo / Branding */}
-          <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">
-              Fivoy
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              La solution SaaS pour gérer votre boutique efficacement
-            </p>
+        <p className="text-lg text-gray-300 mb-8">
+          Gérez votre boutique de films simplement, rapidement et intelligemment.
+        </p>
+
+        <div className="space-y-4 text-gray-300">
+          <div className="flex items-center gap-3">
+            <CheckCircle className="text-violet-500" />
+            <span>Gestion des ventes et dépenses</span>
           </div>
+          <div className="flex items-center gap-3">
+            <CheckCircle className="text-violet-500" />
+            <span>Générateur de posters PDF intégré</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <CheckCircle className="text-violet-500" />
+            <span>Statistiques et suivi en temps réel</span>
+          </div>
+        </div>
+      </div>
+
+      {/* RIGHT SIDE LOGIN */}
+      <div className="flex flex-1 items-center justify-center px-6">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 animate-fadeIn">
+
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+            Connexion à votre espace
+          </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
@@ -71,7 +91,7 @@ function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-violet-600 hover:bg-violet-700 text-white py-2 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
+              className="w-full bg-violet-600 hover:bg-violet-700 text-white py-2 rounded-lg flex items-center justify-center transition disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -83,12 +103,22 @@ function LoginPage() {
               )}
             </button>
           </form>
+
+          <div className="mt-6 text-center text-sm text-gray-600">
+            Pas encore de compte ?{" "}
+            <Link
+              to="/register"
+              className="text-violet-600 hover:underline font-medium"
+            >
+              Créer un compte
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* Footer global */}
-      <footer className="text-center text-gray-400 text-sm py-4">
-        © {new Date().getFullYear()} Copyright – Fivoy | Développé par{" "}
+      {/* FOOTER */}
+      <footer className="absolute bottom-4 w-full text-center text-gray-400 text-sm">
+        © {new Date().getFullYear()} Fivoy | Développé par{" "}
         <a
           href="https://ton-site.com"
           target="_blank"
