@@ -1,4 +1,3 @@
-import { supabase } from '../../lib/supabaseClient';
 
 export async function listOrders({ q = '', status = '', category = '', limit = 50, offset = 0 } = {}) {
   let query = supabase.from('orders').select('*', { count: 'exact' }).order('created_at', { ascending: false });

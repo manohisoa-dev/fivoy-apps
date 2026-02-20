@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Clock, Timer, DollarSign, Wifi, RotateCcw, Play, Pause, StepForward } from 'lucide-react';
 import Swal from 'sweetalert2';   
-import { supabase } from "./lib/supabaseClient";
 
 // Dans CounterApp.js, ajoutez cet import au début du fichier :
 import { createSale } from './modules/sales/salesApi';

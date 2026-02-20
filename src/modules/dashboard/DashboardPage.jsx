@@ -1,22 +1,24 @@
 import { useState, useEffect } from "react";
 import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Calendar, BarChart3, Filter, RotateCcw } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import api from "../../api/api";
 
-import { supabase } from "../../lib/supabaseClient";
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
+import Swal from 'sweetalert2';  
 
 // Couleurs pour les graphiques
 const COLORS = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'];
 
 const DashboardPage = () => {
-  const DASHBOARD_PIN = "855217584056";
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [pin, setPin] = useState("");
-
   const [ventes, setVentes] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [ventesItems, setVentesItems] = useState([]);
+
+  const safeVentes = Array.isArray(ventes) ? ventes : [];
+  const safeExpenses = Array.isArray(expenses) ? expenses : [];
   
   // Filtres
   const [period, setPeriod] = useState('month'); // 'day', 'week', 'month', 'year'
@@ -24,110 +26,61 @@ const DashboardPage = () => {
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
 
+  const { user, loading: authLoading } = useContext(AuthContext);
+
+  console.log("authLoading:", authLoading);
+  console.log("user:", user);
+
+
   // Simulation de données (remplacez par vos appels Supabase réels)
   useEffect(() => {
-    const unlocked = sessionStorage.getItem("dashboard_unlocked");
-    setIsUnlocked(unlocked === "true");
-    
-    loadData();
-  }, []);
-
-    const unlockDashboard = () => {
-        if (pin === DASHBOARD_PIN) {
-            sessionStorage.setItem("dashboard_unlocked", "true");
-            setIsUnlocked(true);
-        } else {
-            alert("Code incorrect");
-        }
-    };
-
+    if (user && !authLoading) {
+      loadData();
+    }
+  }, [user, authLoading]);
 
   const loadData = async () => {
+    console.log("loadData called");
     try {
-        setLoading(true);
-        
-        // Charger TOUTES les ventes (pas de limite)
-        let allVentes = [];
-        let from = 0;
-        const batchSize = 1000;
-        let hasMore = true;
-        
-        console.log('🔄 Début du chargement des ventes...');
-        
-        while (hasMore) {
-        const { data: batch, error } = await supabase
-            .from('ventes')
-            .select('*')
-            .order('date', { ascending: false })
-            .range(from, from + batchSize - 1);
-        
-        if (error) {
-            console.error('❌ Erreur ventes:', error);
-            throw error;
-        }
-        
-        if (batch && batch.length > 0) {
-            allVentes = [...allVentes, ...batch];
-            from += batchSize;
-            console.log(`📦 Chargé ${allVentes.length} ventes...`);
-            
-            // Si on a reçu moins que batchSize, c'est la dernière page
-            if (batch.length < batchSize) {
-            hasMore = false;
-            }
-        } else {
-            hasMore = false;
-        }
-        }
-        
-        console.log('✅ === RÉSULTAT VENTES ===');
-        console.log('📊 Total ventes chargées:', allVentes.length);
-        console.log('🔝 Première vente (récente):', allVentes[0]);
-        console.log('🔚 Dernière vente (ancienne):', allVentes[allVentes.length - 1]);
-        
-        // Calculer le total pour vérification
-        const totalVentes = allVentes.reduce((sum, v) => sum + Number(v.total || 0), 0);
-        console.log('💰 Total CA de toutes les ventes:', totalVentes.toLocaleString('fr-FR'), 'Ar');
+      setLoading(true);
 
-        // Charger les items de ventes
-        console.log('🔄 Chargement des articles vendus...');
-        const { data: itemsData, error: itemsError } = await supabase
-          .from('vente_items')
-          .select('*');
+      const [salesRes, saleItemsRes, expensesRes] = await Promise.all([
+        api.get("/sales"),
+        api.get("/sale-items"),
+        api.get("/expenses"),
+      ]);
 
-        if (itemsError) {
-          console.error('❌ Erreur items:', itemsError);
-        } else {
-          console.log('📊 Total items chargés:', itemsData?.length || 0);
-          setVentesItems(itemsData || []);
-        }
-        
-        // Charger les dépenses
-        console.log('🔄 Chargement des dépenses...');
-        const { data: expensesData, error: expensesError } = await supabase
-        .from('expenses')
-        .select('*')
-        .order('date', { ascending: false });
-        
-        if (expensesError) {
-        console.error('❌ Erreur dépenses:', expensesError);
-        throw expensesError;
-        }
-        
-        console.log('✅ === RÉSULTAT DÉPENSES ===');
-        console.log('📊 Total dépenses chargées:', expensesData?.length || 0);
-        
-        setVentes(allVentes);
-        setExpenses(expensesData || []);
-        
-        console.log('✅ Chargement terminé avec succès!');
+      const ventesData = Array.isArray(salesRes.data)
+        ? salesRes.data
+        : salesRes.data.data;
+
+      const expensesData = Array.isArray(expensesRes.data)
+        ? expensesRes.data
+        : expensesRes.data.data;
+
+      const itemsData = Array.isArray(saleItemsRes.data)
+        ? saleItemsRes.data
+        : saleItemsRes.data.data;
+
+      setVentes(ventesData || []);
+      setExpenses(expensesData || []);
+      setVentesItems(itemsData || []);
+
     } catch (error) {
-        console.error('❌ Erreur lors du chargement:', error);
-        alert('Erreur lors du chargement des données. Vérifiez la console pour plus de détails.');
+      console.error("Erreur chargement dashboard:", error);
+      Swal.fire({
+        title: "Erreur chargement dashboard",
+        text: `Une erreur s'est produite lors du chargement des données dans le dashboard`,
+        icon: "warning",
+        confirmButtonText: "OK",
+        cancelButtonText: "Annuler",
+        confirmButtonColor: "#dc2626",
+      });
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
+
 
   const resetFilters = () => {
     setPeriod('month');
@@ -193,8 +146,8 @@ const DashboardPage = () => {
     if (customStartDate && customEndDate) {
       // Comparaison directe des chaînes de dates (YYYY-MM-DD)
       return {
-        ventes: ventes.filter(v => v.date >= customStartDate && v.date <= customEndDate),
-        expenses: expenses.filter(e => e.date >= customStartDate && e.date <= customEndDate)
+        ventes: safeVentes.filter(v => v.date >= customStartDate && v.date <= customEndDate),
+        expenses: safeExpenses.filter(e => e.date >= customStartDate && e.date <= customEndDate)
       };
     }
     
@@ -206,8 +159,8 @@ const DashboardPage = () => {
         // Aujourd'hui seulement
         const todayStr = now.toISOString().slice(0, 10);
         return {
-          ventes: ventes.filter(v => v.date === todayStr),
-          expenses: expenses.filter(e => e.date === todayStr)
+          ventes: safeVentes.filter(v => v.date === todayStr),
+          expenses: safeExpenses.filter(e => e.date === todayStr)
         };
       case 'week':
         startDate.setDate(now.getDate() - 7);
@@ -226,8 +179,8 @@ const DashboardPage = () => {
     const startDateStr = startDate.toISOString().slice(0, 10);
     
     return {
-      ventes: ventes.filter(v => v.date >= startDateStr),
-      expenses: expenses.filter(e => e.date >= startDateStr)
+      ventes: safeVentes.filter(v => v.date >= startDateStr),
+      expenses: safeExpenses.filter(e => e.date >= startDateStr)
     };
   };
 
@@ -241,9 +194,9 @@ const DashboardPage = () => {
 
   // Ventes du jour
   const today = new Date().toISOString().slice(0, 10);
-  const ventesToday = ventes.filter(v => v.date === today);
+  const ventesToday = safeVentes.filter(v => v.date === today);
   const totalVentesToday = ventesToday.reduce((sum, v) => sum + Number(v.total), 0);
-  const depensesToday = expenses.filter(e => e.date === today);
+  const depensesToday = safeExpenses.filter(e => e.date === today);
   const totalDepensesToday = depensesToday.reduce((sum, e) => sum + Number(e.amount), 0);
 
   // Données pour le graphique de tendance (ventes vs dépenses)
@@ -314,29 +267,6 @@ const DashboardPage = () => {
   const paymentMethodData = getPaymentMethodData();
   const expensesCategoryData = getExpensesCategoryData();
   const salesByCategoryData = getSalesByCategoryData();
-
-  if (!isUnlocked) {
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-white p-6 rounded shadow w-full max-w-sm">
-            <h2 className="text-xl font-bold mb-4">🔒 Tableau de bord verrouillé</h2>
-            <input
-            type="password"
-            placeholder="Code d'accès"
-            value={pin}
-            onChange={(e) => setPin(e.target.value)}
-            className="w-full px-3 py-2 border rounded mb-3"
-            />
-            <button
-            onClick={unlockDashboard}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-            >
-            Déverrouiller
-            </button>
-        </div>
-        </div>
-    );
-    }
 
   if (loading) {
     return (
