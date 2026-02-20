@@ -120,7 +120,7 @@ function LoginPage() {
       <footer className="absolute bottom-4 w-full text-center text-gray-400 text-sm">
         © {new Date().getFullYear()} Fivoy | Développé par{" "}
         <a
-          href="https://ton-site.com"
+          href="https://manou.agnaro.io/"
           target="_blank"
           rel="noopener noreferrer"
           className="text-violet-400 hover:underline"

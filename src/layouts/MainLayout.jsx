@@ -6,7 +6,25 @@ import { User, Building2, ChevronDown } from "lucide-react";
 
 const MainLayout = () => {
   const [open, setOpen] = useState(false);
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, trialDaysRemaining } = useContext(AuthContext);
+
+  const isTrialUser = trialDaysRemaining !== null;
+  const isExpired = isTrialUser && trialDaysRemaining < 0;
+
+  const badgeClass = !isTrialUser
+    ? ""
+    : trialDaysRemaining <= 3
+    ? "bg-red-100 text-red-600"
+    : trialDaysRemaining <= 7
+    ? "bg-orange-100 text-orange-600"
+    : "bg-blue-100 text-blue-600";
+
+  const label = !isTrialUser
+    ? ""
+    : isExpired
+    ? "❌ Essai expiré"
+    : `⏳ Essai gratuit • ${trialDaysRemaining} jour${trialDaysRemaining !== 1 ? "s" : ""} restant${trialDaysRemaining !== 1 ? "s" : ""}`;
+
 
 
   const handleLogout = async () => {
@@ -33,6 +51,16 @@ const MainLayout = () => {
             <h1 className="text-2xl font-bold">
               {user?.boutique?.name || "Fivoy Services"}
             </h1>
+
+            {/* Nombre jours d'esssaie restant, Trial Day Remaining */}
+            {trialDaysRemaining !== null && (
+              <div
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold shadow-sm ${badgeClass}`}
+              >
+                {label}
+              </div>
+            )}
+
           </div>
 
           {/* Navigation */}

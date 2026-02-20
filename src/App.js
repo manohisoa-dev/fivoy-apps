@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import AuthLayout from "./layouts/AuthLayout";
+import RegisterPage from "./pages/RegisterPage";
+
 import MainLayout from "./layouts/MainLayout";
 import DashboardPage from "./modules/dashboard/DashboardPage";
 import SalesPage from "./modules/sales/SalesPage";
@@ -16,6 +18,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
           <Route element={<AuthLayout />}>
             <Route element={<MainLayout />}>
