@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { PrinterCheck , Search, Upload, Download, Trash2, RotateCcw, Plus, X, Grid, FileImage } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import api from "./api/api";
 
 const PosterGenerator = () => {
   // États pour la recherche TMDB
@@ -61,65 +62,54 @@ const PosterGenerator = () => {
 
   const fetchMovieDetails = async (movieId, mediaType) => {
     setLoadingDetails(true);
+
     try {
-      const API_KEY = '4c491bc729de9f07597d8cd6c688973f';
-      
-      // Récupérer les détails du film/série
-      const detailsUrl = `https://api.themoviedb.org/3/${mediaType}/${movieId}?api_key=${API_KEY}&language=${selectedLanguage}`;
-      const detailsResponse = await fetch(detailsUrl);
-      const details = await detailsResponse.json();
-      
-      // Récupérer les images (posters + backdrops)
-      const imagesUrl = `https://api.themoviedb.org/3/${mediaType}/${movieId}/images?api_key=${API_KEY}`;
-      const imagesResponse = await fetch(imagesUrl);
-      const images = await imagesResponse.json();
-      
-      // Récupérer les vidéos (bande-annonce)
-      const videosUrl = `https://api.themoviedb.org/3/${mediaType}/${movieId}/videos?api_key=${API_KEY}&language=fr-FR`;
-      const videosResponse = await fetch(videosUrl);
-      const videos = await videosResponse.json();
-      
-      // Récupérer les films/séries similaires
-      const similarUrl = `https://api.themoviedb.org/3/${mediaType}/${movieId}/similar?api_key=${API_KEY}&language=${selectedLanguage}&page=1`;
-      const similarResponse = await fetch(similarUrl);
-      const similar = await similarResponse.json();
-      
-      const trailer = videos.results?.find(video => 
-        video.type === 'Trailer' && video.site === 'YouTube'
+      const response = await api.get(`/tmdb/details/${mediaType}/${movieId}`, {
+        params: {
+          language: selectedLanguage
+        }
+      });
+
+      const { details, images, videos, similar } = response.data;
+
+      const trailer = videos.results?.find(v => 
+        v.type === "Trailer" && v.site === "YouTube"
       ) || videos.results?.[0];
-      
-      // Traiter les posters alternatifs (limiter à 12 pour ne pas surcharger)
+
       const alternativePosters = images.posters?.slice(0, 12).map(poster => ({
         path: `https://image.tmdb.org/t/p/w300${poster.file_path}`,
         fullPath: `https://image.tmdb.org/t/p/original${poster.file_path}`,
         language: poster.iso_639_1,
         vote_average: poster.vote_average
       })) || [];
-      
-      // Traiter les backdrops (images horizontales)
+
       const backdrops = images.backdrops?.slice(0, 8).map(backdrop => ({
         path: `https://image.tmdb.org/t/p/w300${backdrop.file_path}`,
         fullPath: `https://image.tmdb.org/t/p/original${backdrop.file_path}`,
         vote_average: backdrop.vote_average
       })) || [];
-      
+
       const similarResults = similar.results?.slice(0, 6).map(item => ({
         id: item.id,
         title: item.title || item.name,
-        poster_path: item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : null,
+        poster_path: item.poster_path 
+          ? `https://image.tmdb.org/t/p/w200${item.poster_path}` 
+          : null,
       })).filter(item => item.poster_path) || [];
-      
+
       setMovieDetails({
         ...details,
         trailer: trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : null,
         alternativePosters,
         backdrops
       });
+
       setSimilarMovies(similarResults);
-      
+
     } catch (error) {
-      console.error('Erreur lors du chargement des détails:', error);
+      console.error("Erreur détails TMDB:", error);
     }
+
     setLoadingDetails(false);
   };
 
@@ -141,28 +131,35 @@ const PosterGenerator = () => {
   // Simulation de l'API TMDB
   const searchTMDB = async (query) => {
     if (!query.trim()) return;
-    
+
     setIsSearching(true);
     try {
-        const API_KEY = '4c491bc729de9f07597d8cd6c688973f';
-        const url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=${selectedLanguage}&include_adult=true`;
-        
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        const results = data.results?.map(item => ({
-          id: item.id,
-          title: item.title || item.name,
-          type: item.media_type,
-          poster_path: item.poster_path ? `https://image.tmdb.org/t/p/original${item.poster_path}` : null,
-          release_date: item.release_date || item.first_air_date || 'N/A'
-        })).filter(item => item.poster_path) || [];
-        
-        setSearchResults(results);
+      const response = await api.get("/tmdb/search", {
+        params: {
+          query,
+          language: selectedLanguage
+        }
+      });
+
+      const data = response.data;
+
+      const results = data.results?.map(item => ({
+        id: item.id,
+        title: item.title || item.name,
+        type: item.media_type,
+        poster_path: item.poster_path 
+          ? `https://image.tmdb.org/t/p/original${item.poster_path}` 
+          : null,
+        release_date: item.release_date || item.first_air_date || 'N/A'
+      })).filter(item => item.poster_path) || [];
+
+      setSearchResults(results);
+
     } catch (error) {
-      console.error('Erreur recherche TMDB:', error);
+      console.error("Erreur recherche TMDB:", error);
       setSearchResults([]);
     }
+
     setIsSearching(false);
   };
 

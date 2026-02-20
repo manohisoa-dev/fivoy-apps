@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  //baseURL: "https://api.agnaro.io/api",
-  baseURL: "http://api.fivoy.loc/api",
+  baseURL: "https://api.agnaro.io/api",
+  //baseURL: "http://api.fivoy.loc/api",
 });
 
 export const setAuthToken = (token) => {

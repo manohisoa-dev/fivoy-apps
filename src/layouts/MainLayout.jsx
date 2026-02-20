@@ -1,7 +1,7 @@
 import { Outlet, Link } from "react-router-dom";
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { Clock, ShoppingCart, DollarSign, BarChart3, LogOut } from "lucide-react";
+import { PrinterCheck, Clock, ShoppingCart, DollarSign, BarChart3, LogOut } from "lucide-react";
 import { User, Building2, ChevronDown } from "lucide-react";
 
 const MainLayout = () => {
@@ -21,7 +21,19 @@ const MainLayout = () => {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           
           {/* Logo */}
-          <h1 className="text-2xl font-bold">Fivoy Services</h1>
+          <div className="flex items-center gap-3">
+            {user?.boutique?.logo ? (
+              <img src={user?.boutique?.logo_url} className="h-8 w-8 object-contain" alt="logo" />
+            ) : (
+              <div className="h-8 w-8 bg-violet-600 rounded flex items-center justify-center text-white">
+                {user?.boutique?.name?.charAt(0)}
+              </div>
+            )}
+
+            <h1 className="text-2xl font-bold">
+              {user?.boutique?.name || "Fivoy Services"}
+            </h1>
+          </div>
 
           {/* Navigation */}
           <div className="flex items-center gap-8">
@@ -38,6 +50,10 @@ const MainLayout = () => {
 
               <Link to="/expenses" className="hover:text-violet-400 flex items-center gap-1">
                 <DollarSign size={16} /> Dépenses
+              </Link>
+
+              <Link to="/posters" className="hover:text-violet-400 flex items-center gap-1">
+                <PrinterCheck size={16} /> Posters PDF
               </Link>
 
               <Link to="/dashboard" className="hover:text-violet-400 flex items-center gap-1">

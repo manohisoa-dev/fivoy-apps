@@ -4,6 +4,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recha
 import ExpenseForm from "./ExpenseForm";
 import { useLoadingStore } from '../../store/loading';
 import api from "../../api/api";
+import Swal from 'sweetalert2';   
 
 
 // Couleurs pour le graphique en secteurs
@@ -111,16 +112,34 @@ const ExpensesPage = () => {
       
       if (error) {
         console.error("Erreur Mysql:", error);
-        alert(`Impossible d'enregistrer la dépense: ${error.message}`);
+        Swal.fire({
+          title: "Erreur lors de l'enregistrement.",
+          text: `Impossible d'enregistrer la dépense: ${error.message}`,
+          icon: "error",
+          confirmButtonText: "OK",
+          cancelButtonText: "Annuler",
+          confirmButtonColor: "#dc2626",
+        });
         return;
       }
 
       await loadExpenses();
       setShowForm(false);
-      alert("Dépense enregistrée avec succès !");
+      Swal.fire({
+        title: "Dépense enregistrée !",
+        text: "La dépense a été enregistrée avec succès !",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
     } catch (err) {
-      console.error("Erreur lors de l'enregistrement:", err);
-      alert("Erreur réseau lors de l'enregistrement.");
+      Swal.fire({
+        title: "Erreur lors de l'enregistrement.",
+        text: `Une erreur s'est produite lors de l'enregistrement de la dépense: ${err.message}`,
+        icon: "error",
+        confirmButtonText: "OK",
+        cancelButtonText: "Annuler",
+        confirmButtonColor: "#dc2626",
+      });
     }
   };
 

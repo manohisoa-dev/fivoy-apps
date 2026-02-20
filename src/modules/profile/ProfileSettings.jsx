@@ -5,7 +5,8 @@ import { useLoadingStore } from '../../store/loading';
 import Swal from 'sweetalert2';   
 
 const ProfileSettings = () => {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
+  const { loading, withLoading } = useLoadingStore();
 
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");
@@ -15,21 +16,23 @@ const ProfileSettings = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [logoutAll, setLogoutAll] = useState(false);
 
-  const { withLoading } = useLoadingStore.getState();
+  const [boutiqueName, setBoutiqueName] = useState(user?.boutique?.name || "");
+  const [logoFile, setLogoFile] = useState(null);
+  const [preview, setPreview] = useState(null);
 
 
   const handleProfileUpdate = async () => {
     try {
       await withLoading(async () => {
-        api.put("/profile", { name, email });
+        await api.put("/profile", { name, email });
 
         Swal.fire({
           title: "Profil mis à jour !",
-          text: `Votre profil a bien été mise à jour avec succès`,
+          text: "Votre profil a bien été mis à jour.",
           icon: "success",
           confirmButtonText: "OK",
         });
-      }) ;
+      });
     } catch (err) {
       Swal.fire({
         title: "Erreur mise à jour profil.",
@@ -75,6 +78,34 @@ const ProfileSettings = () => {
     }
   };
 
+  const handleBoutiqueUpdate = async () => {
+    const formData = new FormData();
+    formData.append("name", boutiqueName);
+
+    if (logoFile) {
+      formData.append("logo", logoFile);
+    }
+
+    formData.append("_method", "PUT");
+
+    await api.post("/boutique", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    });
+
+    await withLoading(async () => {
+      Swal.fire({
+        title: "Boutique mise à jour !",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      const refreshedUser = await api.get("/me");
+      setUser(refreshedUser.data);
+    });
+  };
+
   return (
     <div className="max-w-3xl mx-auto space-y-8">
 
@@ -98,12 +129,11 @@ const ProfileSettings = () => {
             placeholder="Email"
             className="w-full border px-3 py-2 rounded"
           />
-
-          <button
-            onClick={handleProfileUpdate}
-            className="px-4 py-2 bg-blue-600 text-white rounded"
-          >
-            Enregistrer
+          
+          <button 
+            onClick={handleProfileUpdate} 
+            disabled={loading}>
+            {loading ? "Enregistrement..." : "Enregistrer"}
           </button>
         </div>
       </div>
@@ -153,6 +183,71 @@ const ProfileSettings = () => {
             Modifier mot de passe
           </button>
         </div>
+      </div>
+
+      {/* Bloc Paramètres Boutique */}
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h2 className="text-lg font-semibold mb-4">
+          Paramètres Boutique
+        </h2>
+
+        {/* Nom boutique */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">
+            Nom de la boutique
+          </label>
+          <input
+            type="text"
+            value={boutiqueName}
+            onChange={(e) => setBoutiqueName(e.target.value)}
+            className="w-full border px-3 py-2 rounded"
+          />
+        </div>
+
+        {/* Upload logo */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">
+            Logo
+          </label>
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+
+              setLogoFile(file);
+              setPreview(URL.createObjectURL(file));
+            }}
+            className="w-full"
+          />
+
+          {/* Preview nouveau logo */}
+          {preview && (
+            <img
+              src={preview}
+              alt="Preview"
+              className="h-16 mt-3 rounded object-contain"
+            />
+          )}
+
+          {/* Logo actuel si pas de preview */}
+          {!preview && user?.boutique?.logo && (
+            <img
+              src={`https://api.agnaro.io/storage/${user.boutique.logo}`}
+              alt="Logo actuel"
+              className="h-16 mt-3 rounded object-contain"
+            />
+          )}
+        </div>
+
+        <button
+          onClick={handleBoutiqueUpdate}
+          className="px-4 py-2 bg-violet-600 text-white rounded"
+        >
+          Enregistrer Boutique
+        </button>
       </div>
     </div>
   );
