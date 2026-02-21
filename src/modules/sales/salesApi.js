@@ -1,35 +1,33 @@
 import api from "../../api/api";
 
-/* ===========================
-   MAPPERS
-=========================== */
-
-export const mapSaleToDb = (sale) => ({
-  date: sale.date,
-  client_name: sale.client || null,
-  payment_method: sale.paymentMethod || "Espèces",
-  notes: sale.notes || null,
-  total: Number(sale.total || 0),
-  items: (sale.items || []).map(it => ({
-    article_nom: it.name,
-    quantite: Number(it.qty),
-    prix_unitaire: Number(it.price),
-  })),
-});
-
 export const mapDbToSale = (row) => ({
   id: row.id,
   date: row.date,
   created_at: row.created_at,
   client: row.client_name || "",
-  paymentMethod: row.payment_method || "Espèces",
+  modePaiement: row.payment_method || "Espèces",
   notes: row.notes || "",
   total: Number(row.total || 0),
-  items: (row.items || []).map(it => ({
-    name: it.article_nom,
-    qty: Number(it.quantite),
-    price: Number(it.prix_unitaire),
-  })),
+
+  items: (row.items || []).map(it => {
+
+    if (it.product_id) {
+      return {
+        type: "catalog",
+        product_id: it.product_id,
+        product_name: it.product_name,
+        quantity: Number(it.quantity),
+        unit_price: Number(it.unit_price)
+      };
+    }
+
+    return {
+      type: "custom",
+      custom_name: it.product_name,
+      custom_price: Number(it.unit_price),
+      quantity: Number(it.quantity)
+    };
+  })
 });
 
 /* ===========================
@@ -57,17 +55,8 @@ export const fetchSalesByDatePaged = async ({
   pageSize = 10,
   q = "",
 }) => {
-  const response = await api.get("/sales/by-date", {
-    params: { date, page, pageSize, q },
-  });
-
-  const data = response.data;
-
-  return {
-    sales: (data.sales || []).map(mapDbToSale),
-    totalCount: data.totalCount || 0,
-    totalJour: Number(data.totalJour || 0),
-  };
+  const response = await api.get("/sales");
+  return response.data.data;
 };
 
 /* ===========================
@@ -75,11 +64,32 @@ export const fetchSalesByDatePaged = async ({
 =========================== */
 
 export const createSale = async (sale) => {
-  const payload = mapSaleToDb(sale);
+
+  const payload = {
+    date: sale.date,
+    client_name: sale.client || null,
+    payment_method: sale.modePaiement || "Espèces",
+    notes: sale.notes || null,
+    items: (sale.items || []).map(it => {
+      if (it.product_id) {
+        return {
+          product_id: it.product_id,
+          quantity: Number(it.quantity)
+        };
+      }
+
+      return {
+        product_id: null,
+        custom_name: it.custom_name,
+        custom_price: Number(it.custom_price),
+        quantity: Number(it.quantity)
+      };
+    })
+  };
 
   const response = await api.post("/sales", payload);
 
-  return mapDbToSale(response.data);
+  return response.data;
 };
 
 /* ===========================
@@ -89,7 +99,27 @@ export const createSale = async (sale) => {
 export const updateSale = async (sale) => {
   if (!sale.id) throw new Error("ID manquant");
 
-  const payload = mapSaleToDb(sale);
+  const payload = {
+    date: sale.date,
+    client_name: sale.client || null,
+    payment_method: sale.modePaiement || "Espèces",
+    notes: sale.notes || null,
+    items: (sale.items || []).map(it => {
+      if (it.product_id) {
+        return {
+          product_id: it.product_id,
+          quantity: Number(it.quantity)
+        };
+      }
+
+      return {
+        product_id: null,
+        custom_name: it.custom_name,
+        custom_price: Number(it.custom_price),
+        quantity: Number(it.quantity)
+      };
+    })
+  };
 
   await api.put(`/sales/${sale.id}`, payload);
 };

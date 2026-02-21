@@ -108,7 +108,10 @@ const MainLayout = () => {
                     <div className="p-4 border-b">
                         <p className="font-semibold">{user?.name}</p>
                         <p className="text-sm text-gray-500">{user?.email}</p>
-                        <Link to="/profile" className="text-sm text-violet-600 hover:underline">Paramètres</Link>
+                        <Link to="/profile" className="text-sm text-violet-600 hover:underline">Paramètres</Link> - {" "}
+                        <Link to="/pricing" className="text-sm text-violet-600 hover:text-violet-600 transition">
+                          Voir les offres
+                        </Link>
                     </div>
 
                     <div className="p-4 border-b">

@@ -1,9 +1,21 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Plus, X, Calculator } from "lucide-react";
 import ItemPicker from "./ItemPicker";
-import { findByName } from "./pricesCatalog";
 
-const emptyItem = { name: "", qty: 1, price: 0 };
+const emptyProductItem = {
+  type: "catalog",
+  product_id: "",
+  product_name: "",
+  quantity: 1,
+  unit_price: 0,
+};
+
+const emptyCustomItem = {
+  type: "custom",
+  custom_name: "",
+  custom_price: 0,
+  quantity: 1,
+};
 
 const SaleForm = ({ initialSale, onCancel, onSave }) => {
   const [date, setDate] = useState(() => {
@@ -16,46 +28,41 @@ const SaleForm = ({ initialSale, onCancel, onSave }) => {
   const [notes, setNotes] = useState(initialSale?.notes || "");
   const [items, setItems] = useState(initialSale?.items?.length ? initialSale.items : []);
 
-  const subTotal = useMemo(
-    () => items.reduce((sum, it) => sum + (Number(it.qty) || 0) * (Number(it.price) || 0), 0),
-    [items]
-  );
-  const total = subTotal; // TVA/remise pourront être ajoutées plus tard
+  const subTotal = useMemo(() => {
+    return items.reduce((sum, it) => {
+      if (it.type === "catalog") {
+        return sum + (Number(it.quantity) || 0) * (Number(it.unit_price) || 0);
+      }
 
-    useEffect(() => {
-        // Normalisation uniquement si on a déjà des lignes
-        setItems((prev) =>
-        prev.length ? prev.map(i => ({ ...i, qty: Number(i.qty) || 1, price: Number(i.price) || 0 })) : prev
-        );
-    }, []);
+      return sum + (Number(it.quantity) || 0) * (Number(it.custom_price) || 0);
+    }, 0);
+  }, [items]);
+  const total = subTotal; // TVA/remise pourront être ajoutées plus tard
 
   const updateItem = (idx, patch) => {
     setItems(prev => prev.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
   };
 
-   // Quand on termine de saisir un nom, on propose le prix par défaut du catalogue
-    const applyCatalogIfMatch = (idx) => {
-    const it = items[idx];
-    const hit = findByName(it?.name || "");
-    if (hit) {
-        updateItem(idx, {
-        price: Number(hit.price) || 0,
-        // si l'utilisateur n'a pas modifié la quantité, on peut mettre 1 par défaut
-        qty: Number(it.qty) || 1,
-        unit: hit.unit, // stocké pour affichage (facultatif)
-        });
-    }
-    };
 
-
-  const addItem = () => setItems(prev => [...prev, { ...emptyItem }]);
   const removeItem = (idx) => setItems(prev => prev.filter((_, i) => i !== idx));
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const cleanItems = items
-      .map(i => ({ ...i, name: i.name.trim() }))
-      .filter(i => i.name && (Number(i.qty) > 0) && (Number(i.price) >= 0));
+    const cleanItems = items.map(i => {
+      if (i.type === "catalog") {
+        return {
+          product_id: i.product_id,
+          quantity: i.quantity
+        };
+      }
+
+      return {
+        product_id: null,
+        custom_name: i.custom_name,
+        custom_price: i.custom_price,
+        quantity: i.quantity
+      };
+    });
 
     if (cleanItems.length === 0) {
       alert("Veuillez saisir au moins un article valide (nom + quantité + prix).");
@@ -67,7 +74,6 @@ const SaleForm = ({ initialSale, onCancel, onSave }) => {
       date,
       client: client.trim(),
       items: cleanItems,
-      total: Number(total.toFixed(2)),
       modePaiement,
       notes: notes.trim()
     };
@@ -138,79 +144,111 @@ const SaleForm = ({ initialSale, onCancel, onSave }) => {
 
         <div className="space-y-2">
           {items.map((it, idx) => (
-            <div key={idx} className="grid grid-cols-12 gap-2">
-              <input
-                className="col-span-6 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="Nom de l'article"
-                value={it.name}
-                onChange={(e) => updateItem(idx, { name: e.target.value })}
-                onBlur={() => applyCatalogIfMatch(idx)}
-                required
-              />
-              <input
-                type="number"
-                min="1"
-                className="col-span-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="Qté"
-                value={it.qty}
-                onChange={(e) => updateItem(idx, { qty: Number(e.target.value) })}
-                required
-              />
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                className="col-span-3 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="Prix unitaire"
-                value={it.price}
-                onChange={(e) => updateItem(idx, { price: Number(e.target.value) })}
-                required
-              />
+            <div key={idx} className="grid grid-cols-12 gap-2 bg-gray-50 p-3 rounded-lg">
+
+              {it.type === "catalog" ? (
+                <>
+                  <div className="col-span-6">
+                    <div className="text-sm font-medium text-gray-800">
+                      {it.product_name || "Choisir via catalogue"}
+                    </div>
+                  </div>
+
+                  <input
+                    type="number"
+                    min="1"
+                    className="col-span-2 px-2 py-2 border rounded-lg"
+                    value={it.quantity}
+                    onChange={(e) =>
+                      updateItem(idx, { quantity: Number(e.target.value) })
+                    }
+                  />
+
+                  <input
+                    type="number"
+                    className="col-span-3 px-2 py-2 border rounded-lg bg-gray-100"
+                    value={it.unit_price}
+                    readOnly
+                  />
+                </>
+              ) : (
+                <>
+                  <input
+                    className="col-span-6 px-2 py-2 border rounded-lg"
+                    placeholder="Nom article"
+                    value={it.custom_name}
+                    onChange={(e) =>
+                      updateItem(idx, { custom_name: e.target.value })
+                    }
+                  />
+
+                  <input
+                    type="number"
+                    min="1"
+                    className="col-span-2 px-2 py-2 border rounded-lg"
+                    value={it.quantity}
+                    onChange={(e) =>
+                      updateItem(idx, { quantity: Number(e.target.value) })
+                    }
+                  />
+
+                  <input
+                    type="number"
+                    min="0"
+                    className="col-span-3 px-2 py-2 border rounded-lg"
+                    value={it.custom_price}
+                    onChange={(e) =>
+                      updateItem(idx, { custom_price: Number(e.target.value) })
+                    }
+                  />
+                </>
+              )}
+
               <button
                 type="button"
                 onClick={() => removeItem(idx)}
-                className="col-span-1 flex items-center justify-center text-red-600 hover:text-red-800"
-                title="Supprimer"
+                className="col-span-1 text-red-600"
               >
-                <X className="w-5 h-5" />
+                ✕
               </button>
-              {it.unit && (
-                <div className="col-span-12 -mt-1 text-xs text-gray-500">
-                  Unité suggérée : {it.unit}
-                </div>
-              )}
             </div>
           ))}
 
           {items.length === 0 && (
             <div className="rounded-lg border border-dashed p-3 text-sm text-gray-600 bg-gray-50">
-              Ajoute tes articles depuis le <b>Catalogue</b> ci-dessous
-              (film, série, connexion, photocopie…) ou clique sur
-              <em> “+ Ajouter une ligne”</em> si c’est un cas spécial.
+              Ajoute tes articles depuis le <b>catalogue</b> de ta boutique.
+              Ou clique sur
+              <em> “+ Article libre”</em> si c’est un cas spécial.
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={addItem}
-            className="w-full mt-1 px-3 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50"
-          >
-            + Ajouter une ligne
-          </button>
+          <div className="flex gap-2 mt-2">
+
+            <button
+              type="button"
+              onClick={() =>
+                setItems(prev => [...prev, { ...emptyCustomItem }])
+              }
+              className="flex-1 px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-black transition"
+            >
+              + Article libre
+            </button>
+          </div>
+
         </div>
 
          {/* Sélecteur rapide du catalogue */}
         <div className="mt-4">
           <ItemPicker
-            onPick={(cat) => {
-              // Ajoute une ligne pré-remplie depuis le catalogue
+            onPick={(p) => {
               setItems(prev => [
                 ...prev,
                 {
-                  name: cat.name,
-                  qty: 1,
-                  price: Number(cat.price) || 0,
-                  unit: cat.unit,
+                  type: "catalog",
+                  product_id: p.product_id,
+                  product_name: p.product_name,
+                  quantity: 1,
+                  unit_price: p.unit_price,
                 }
               ]);
             }}

@@ -28,37 +28,26 @@ const SalesPage = () => {
   const loadPage = async () => {
     setLoading(true);
     try {
-      await withLoading(async () => {
-        const { fetchSalesByDatePaged } = await import("./salesApi");
-        const res = await fetchSalesByDatePaged({
-          date: selectedDate,
-          page,
-          pageSize,
-          q: query,
-        });
-        setSales(res.sales);
-        setTotalCount(res.totalCount);
-        setTotalJour(res.totalJour);
-      });
+      const salesList = await fetchSales();
+
+      const filtered = salesList.filter(s => s.date === selectedDate);
+
+      setSales(filtered);
+      setTotalCount(filtered.length);
+
+      const total = filtered.reduce(
+        (sum, s) => sum + Number(s.total || 0),
+        0
+      );
+
+      setTotalJour(total);
+
     } catch (e) {
-      console.warn("Chargement Supabase impossible, fallback local:", e);
-      const local = loadFromStorage(STORAGE_KEY, []);
-      // Filtre local approximatif
-      const filteredLocal = local
-        .filter(v => v.date === selectedDate)
-        .filter(v =>
-          !query.trim()
-            ? true
-            : [v.client, v.modePaiement].filter(Boolean).some(f => f.toLowerCase().includes(query.toLowerCase()))
-        );
-      setTotalCount(filteredLocal.length);
-      setTotalJour(filteredLocal.reduce((sum, v) => sum + Number(v.total || 0), 0));
-      const start = (page - 1) * pageSize;
-      setSales(filteredLocal.slice(start, start + pageSize));
+      console.error(e);
     } finally {
-    setLoading(false);
-  }
-};
+      setLoading(false);
+    }
+  };
 
 useEffect(() => {
   loadPage();

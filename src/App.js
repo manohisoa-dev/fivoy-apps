@@ -11,6 +11,7 @@ import ExpensesPage from "./modules/expenses/ExpensesPage";
 import ProfileSettings from "./modules/profile/ProfileSettings";
 import CounterApp from "./CounterApp";
 import PosterGenerator from "./PosterGenerator";
+import ProductsPage from "./modules/products/ProductsPage";
 
 import PricingPage from "./pages/PricingPage";
 
@@ -31,6 +32,7 @@ function App() {
               <Route path="/posters" element={<PosterGenerator />} />
               <Route path="/profile" element={<ProfileSettings />} />
               <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/products" element={<ProductsPage />} />
             </Route>
           </Route>
 

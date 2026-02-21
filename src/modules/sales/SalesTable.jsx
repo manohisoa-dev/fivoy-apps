@@ -57,16 +57,31 @@ const SalesTable = ({
                 <div
                   className="max-w-[420px] truncate"
                   title={(s.items || [])
-                    .map((i) => `${i.name} x${i.qty}`)
+                    .map((i) => {
+                      const label = i.product_name || i.custom_name || i.name;
+                      return `${label} x${i.quantity}`;
+                    })
                     .join(" • ")}
                 >
-                  {(s.items || []).map((i) => `${i.name} x${i.qty}`).join(" • ")}
+                  {(s.items || []).map((i) => {
+                      const label = i.product_name || i.custom_name || i.name;
+                      return `${label} x${i.quantity}`;
+                    }).join(" • ")}
                 </div>
               </td>
               <td className="px-3 py-2 text-right font-semibold">
                 {Number(s.total || 0).toLocaleString("fr-FR")} Ar
               </td>
-              <td className="px-3 py-2">{s.modePaiement}</td>
+              <td className="px-3 py-2">
+                <div className="flex flex-col">
+                  <span>{s.modePaiement}</span>
+                  {s.notes && (
+                    <span className="text-xs text-gray-500">
+                      {s.notes}
+                    </span>
+                  )}
+                </div>
+              </td>
               <td className="px-3 py-2">
                 <div className="flex items-center gap-2 justify-center">
                   <button
