@@ -2,7 +2,7 @@
 
 import api from "../../api/api";
 
-export const fetchProducts = (params) => {
+export const fetchProducts = (params = {}) => {
   return api.get("/products", { params });
 };
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { fetchProducts } from "./productService";
 
-export default function useProducts(search = "") {
+export default function useProducts(search, filter) {
   const [products, setProducts] = useState([]);
   const [meta, setMeta] = useState({});
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,10 @@ export default function useProducts(search = "") {
         params.search = search;
       }
 
-      const res = await fetchProducts(params);
+      const res = await fetchProducts({
+        search,
+        active: filter
+      });;
 
       setProducts(res.data.data);
       setMeta(res.data.meta);
@@ -26,7 +29,7 @@ export default function useProducts(search = "") {
 
   useEffect(() => {
     loadProducts();
-  }, [search]);
+  }, [search, filter]);
 
   return {
     products,

@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import api, { setAuthToken } from "../api/api";
+import { useLoadingStore } from "../store/loading";
 
 export const AuthContext = createContext();
 
@@ -7,11 +8,13 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [trialDaysRemaining, setTrialDaysRemaining] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { start, stop } = useLoadingStore.getState();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     if (!token) {
+      stop();
       setLoading(false);
       return;
     }
@@ -21,12 +24,12 @@ export const AuthProvider = ({ children }) => {
     const fetchUser = async () => {
       try {
         const res = await api.get("/me");
-
         setUser(res.data.user);
         setTrialDaysRemaining(res.data.trial_days_remaining);
       } catch (err) {
         localStorage.removeItem("token");
       } finally {
+        stop();
         setLoading(false);
       }
     };
@@ -37,14 +40,15 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const res = await api.post("/login", { email, password });
 
-    const { token, user } = res.data;
+    const { token } = res.data;
 
     localStorage.setItem("token", token);
     setAuthToken(token);
-    setUser(user);
 
-    // recharger les infos trial
+    // 🔥 on recharge le vrai profil complet
     const me = await api.get("/me");
+
+    setUser(me.data.user);
     setTrialDaysRemaining(me.data.trial_days_remaining);
   };
 

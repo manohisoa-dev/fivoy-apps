@@ -4,10 +4,14 @@ import { AuthContext } from "../context/AuthContext";
 import { PrinterCheck, Clock, ShoppingCart, DollarSign, BarChart3, LogOut } from "lucide-react";
 import { User, Building2, ChevronDown } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 const MainLayout = () => {
   const [open, setOpen] = useState(false);
-  const { user, logout, trialDaysRemaining } = useContext(AuthContext);
+  const { user, logout, trialDaysRemaining, initialized } = useContext(AuthContext);
+
+  const location = useLocation();
+  const isPricingPage = location.pathname === "/pricing";
 
   const isTrialUser = trialDaysRemaining !== null;
   const isExpired = isTrialUser && trialDaysRemaining < 0;
@@ -26,15 +30,14 @@ const MainLayout = () => {
     ? "❌ Essai expiré"
     : `⏳ Essai gratuit • ${trialDaysRemaining} jour${trialDaysRemaining !== 1 ? "s" : ""} restant${trialDaysRemaining !== 1 ? "s" : ""}`;
 
-  const location = useLocation();
-  const isPricingPage = location.pathname === "/pricing";
-
   const handleLogout = async () => {
     await logout();
     window.location.href = "/login";
   };
 
   return (
+  <>
+    <LoadingOverlay />
     <div>
       {/* Navbar */}
       <div className="bg-gray-800 text-white p-4">
@@ -204,6 +207,7 @@ const MainLayout = () => {
         </div>
       </footer>
     </div>
+  </>
   );
 };
 
