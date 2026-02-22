@@ -1,5 +1,5 @@
 import { useState } from "react";
-import useProducts from "./useProducts";
+import useProductsAdmin from "./useProductsAdmin";
 import ProductFormModal from "./ProductFormModal";
 import api from "../../api/api";
 import Swal from "sweetalert2";
@@ -10,7 +10,7 @@ export default function ProductsPage() {
   const [editing, setEditing] = useState(null);
 
   const [filter, setFilter] = useState("1"); // 1 = actifs par défaut
-  const { products, loading, reload } = useProducts(search, filter);
+  const { products, loading, reload } = useProductsAdmin(search, filter);
 
   const handleToggle = async (product) => {
     const action = product.is_active ? "désactiver" : "réactiver";

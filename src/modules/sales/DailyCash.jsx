@@ -25,12 +25,12 @@ const DailyCash = ({ selectedDate }) => {
         params: { date: selectedDate }
       });
 
-      const data = response.data;
+      const { cash } = response.data;
 
-      if (data) {
-        setCash(data);
-        setMontant(data.montant_especes.toString());
-        setNotes(data.notes || "");
+      if (cash) {
+        setCash(cash);
+        setMontant(cash.cash_amount.toString());
+        setNotes(cash.notes || "");
       } else {
         setCash(null);
         setMontant("");
@@ -53,7 +53,7 @@ const DailyCash = ({ selectedDate }) => {
     try {
       const payload = {
         date: selectedDate,
-        montant_especes: parseFloat(montant) || 0,
+        cash_amount: parseFloat(montant) || 0,
         notes: notes.trim(),
       };
 
@@ -171,7 +171,7 @@ const DailyCash = ({ selectedDate }) => {
           {cash ? (
             <>
               <div className="text-2xl font-bold text-green-700">
-                {parseFloat(cash.montant_especes).toLocaleString("fr-FR")} Ar
+                {parseFloat(cash.cash_amount).toLocaleString("fr-FR")} Ar
               </div>
               {cash.notes && (
                 <p className="text-sm text-gray-600 italic">

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import useProducts from "../products/useProducts";
+import useProducts from "../products/useActiveProducts";
 import { Plus, Settings2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
