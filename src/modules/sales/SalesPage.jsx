@@ -137,13 +137,6 @@ useEffect(() => {
 }
   };
 
-
-  const handleResetAll = () => {
-    if (window.confirm("Remise à zéro de toutes les ventes ? Cette action est irréversible.")) {
-      setSales([]);
-    }
-  };
-
   const handleExportCSV = () => {
     if (filtered.length === 0) {
       alert("Aucune vente à exporter.");
@@ -187,12 +180,6 @@ useEffect(() => {
                 className="w-full md:w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-2"
               >
                 <Download className="w-4 h-4" /> Export CSV
-              </button>
-              <button
-                onClick={handleResetAll}
-                className="w-full md:w-auto px-4 py-2 border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-600 hover:text-white flex items-center justify-center gap-2"
-              >
-                <RotateCcw className="w-4 h-4" /> Remise à zéro
               </button>
             </div>
           </div>
@@ -307,7 +294,7 @@ useEffect(() => {
 
         {/* Légende / aide rapide */}
         <div className="text-xs text-gray-500 mt-4">
-          Astuce : les articles sont libres pour l’instant (Stocks viendra après). Les totaux sont calculés automatiquement.
+          Les articles sont liés au catalogue de votre boutique. Les stocks et analyses avancées arrivent bientôt.
         </div>
       </div>
     </div>
