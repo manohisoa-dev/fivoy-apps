@@ -10,6 +10,23 @@ const DailyCash = ({ selectedDate }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  const [salesTotal, setSalesTotal] = useState(0);
+  const [difference, setDifference] = useState(null);
+
+  const formatAr = (value) => {
+    if (value === null || value === undefined) return "0";
+    return Number(value).toLocaleString("fr-FR");
+  };
+
+  const status =
+  difference === null
+    ? null
+    : difference === 0
+    ? "balanced"
+    : difference > 0
+    ? "surplus"
+    : "deficit";
+
   useEffect(() => {
     if (selectedDate) {
       loadCash();
@@ -20,12 +37,16 @@ const DailyCash = ({ selectedDate }) => {
     if (!selectedDate) return;
 
     setLoading(true);
+
     try {
       const response = await api.get("/cash", {
         params: { date: selectedDate }
       });
 
-      const { cash } = response.data;
+      const { cash, sales_total, difference } = response.data;
+
+      setSalesTotal(sales_total || 0);
+      setDifference(difference);
 
       if (cash) {
         setCash(cash);
@@ -91,13 +112,39 @@ const DailyCash = ({ selectedDate }) => {
   }
 
   return (
-    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg shadow-sm p-4 border border-green-200">
+    <div className="relative overflow-hidden rounded-2xl shadow-lg p-5 border border-green-200 bg-gradient-to-br from-green-50 via-white to-emerald-50 transition-all duration-300">
+      {status && (
+        <div
+          className={`absolute left-0 top-0 h-full w-1 ${
+            status === "balanced"
+              ? "bg-gray-400"
+              : status === "surplus"
+              ? "bg-green-500"
+              : "bg-red-500"
+          }`}
+        />
+      )}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Wallet className="w-5 h-5 text-green-700" />
           <h3 className="font-semibold text-gray-800">Cash du jour</h3>
         </div>
 
+        {status && !isEditing && (
+          <div
+            className={`px-3 py-1 text-xs font-semibold rounded-full ${
+              status === "balanced"
+                ? "bg-gray-200 text-gray-700"
+                : status === "surplus"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {status === "balanced" && "✔ Caisse équilibrée"}
+            {status === "surplus" && "▲ Excédent"}
+            {status === "deficit" && "▼ Manque"}
+          </div>
+        )}
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}
@@ -170,9 +217,37 @@ const DailyCash = ({ selectedDate }) => {
         <div className="space-y-2">
           {cash ? (
             <>
-              <div className="text-2xl font-bold text-green-700">
-                {parseFloat(cash.cash_amount).toLocaleString("fr-FR")} Ar
+              <div className="text-3xl font-extrabold tracking-tight text-green-700">
+                {formatAr(cash.cash_amount)} Ar
               </div>
+
+              <div className="mt-4 space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Total ventes</span>
+                  <span className="font-semibold text-gray-800">
+                    {formatAr(salesTotal)} Ar
+                  </span>
+                </div>
+
+                {difference !== null && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Écart</span>
+                    <span
+                      className={`font-semibold ${
+                        difference === 0
+                          ? "text-gray-800"
+                          : difference > 0
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {difference > 0 ? "+" : ""}
+                      {formatAr(difference)} Ar
+                    </span>
+                  </div>
+                )}
+              </div>
+
               {cash.notes && (
                 <p className="text-sm text-gray-600 italic">
                   {cash.notes}
