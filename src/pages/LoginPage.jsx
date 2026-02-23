@@ -91,7 +91,7 @@ function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-violet-600 hover:bg-violet-700 text-white py-2 rounded-lg flex items-center justify-center transition disabled:opacity-50"
+              className="w-full bg-violet-600 text-violet-600 text-white py-2 rounded-lg flex items-center justify-center transition disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -108,7 +108,7 @@ function LoginPage() {
             Pas encore de compte ?{" "}
             <Link
               to="/register"
-              className="text-violet-600 hover:underline font-medium"
+              className="text-purple-600 hover:underline font-medium"
             >
               Créer un compte
             </Link>

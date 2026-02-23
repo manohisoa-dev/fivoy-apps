@@ -54,7 +54,7 @@ const ItemPicker = ({ onPick }) => {
                   unit_price: p.price,
                 })
               }
-              className="px-2 py-1 bg-violet-600 text-white rounded-lg hover:bg-violet-700 flex items-center gap-1"
+              className="px-2 py-1 bg-primary text-white rounded-lg border-primary flex items-center gap-1"
             >
               <Plus className="w-4 h-4" /> Ajouter
             </button>

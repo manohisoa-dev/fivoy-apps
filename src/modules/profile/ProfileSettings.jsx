@@ -20,6 +20,7 @@ const ProfileSettings = () => {
   const [logoFile, setLogoFile] = useState(null);
   const [preview, setPreview] = useState(null);
 
+  const [primaryColor, setPrimaryColor] = useState(user?.boutique?.primary_color || "#7c3aed");
 
   const handleProfileUpdate = async () => {
     try {
@@ -81,6 +82,7 @@ const ProfileSettings = () => {
   const handleBoutiqueUpdate = async () => {
     const formData = new FormData();
     formData.append("name", boutiqueName);
+    formData.append("primary_color", primaryColor);
 
     if (logoFile) {
       formData.append("logo", logoFile);
@@ -102,7 +104,7 @@ const ProfileSettings = () => {
       });
 
       const refreshedUser = await api.get("/me");
-      setUser(refreshedUser.data);
+      setUser(refreshedUser.data.user);
     });
   };
 
@@ -242,9 +244,31 @@ const ProfileSettings = () => {
           )}
         </div>
 
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">
+            Couleur principale
+          </label>
+
+          <div className="flex items-center gap-4">
+            <input
+              type="color"
+              value={primaryColor}
+              onChange={(e) => setPrimaryColor(e.target.value)}
+              className="w-12 h-10 border rounded cursor-pointer"
+            />
+
+            <input
+              type="text"
+              value={primaryColor}
+              onChange={(e) => setPrimaryColor(e.target.value)}
+              className="border px-3 py-2 rounded w-32"
+            />
+          </div>
+        </div>
+
         <button
           onClick={handleBoutiqueUpdate}
-          className="px-4 py-2 bg-violet-600 text-white rounded"
+          className="px-4 py-2 bg-primary text-white rounded"
         >
           Enregistrer Boutique
         </button>

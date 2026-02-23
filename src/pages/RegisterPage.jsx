@@ -92,7 +92,7 @@ function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-violet-600 hover:bg-violet-700 text-white py-2 rounded-lg flex items-center justify-center transition disabled:opacity-50"
+            className="w-full bg-violet-600 border-violet-600 text-white py-2 rounded-lg flex items-center justify-center transition disabled:opacity-50"
           >
             {loading ? (
               <>

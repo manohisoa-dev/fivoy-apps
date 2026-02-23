@@ -161,7 +161,7 @@ useEffect(() => {
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center space-x-3">
-              <ShoppingCart className="w-8 h-8 text-violet-600" />
+              <ShoppingCart className="w-8 h-8 text-primary" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">Ventes</h1>
                 <p className="text-gray-500 text-sm">Suivi des ventes — les données sont stockées et sécurisées en ligne.</p>
@@ -171,7 +171,7 @@ useEffect(() => {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={handleCreate}
-                className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
+                className="w-full md:w-auto px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" /> Nouvelle vente
               </button>

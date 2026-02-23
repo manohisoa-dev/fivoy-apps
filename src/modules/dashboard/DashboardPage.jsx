@@ -291,7 +291,7 @@ const DashboardPage = () => {
         {/* Filtres de période */}
         <div className="bg-white rounded-lg shadow p-4 mb-6">
           <div className="flex items-center gap-2">
-            <Filter className="w-5 h-5 text-blue-600" />
+            <Filter className="w-5 h-5 text-primary" />
             <h2 className="text-lg font-semibold">Période d'analyse</h2>
           </div>
           
@@ -299,7 +299,7 @@ const DashboardPage = () => {
             <button
               onClick={() => setPeriod('day')}
               className={`px-4 py-2 rounded transition-colors ${
-                period === 'day' ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                period === 'day' ? 'bg-primary text-white' : 'bg-gray-100 hover:bg-gray-200'
               }`}
             >
               Aujourd'hui
@@ -307,7 +307,7 @@ const DashboardPage = () => {
             <button
               onClick={() => setPeriod('week')}
               className={`px-4 py-2 rounded transition-colors ${
-                period === 'week' ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                period === 'week' ? 'bg-primary text-white' : 'bg-gray-100 hover:bg-gray-200'
               }`}
             >
               7 jours
@@ -315,7 +315,7 @@ const DashboardPage = () => {
             <button
               onClick={() => setPeriod('month')}
               className={`px-4 py-2 rounded transition-colors ${
-                period === 'month' ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                period === 'month' ? 'bg-primary text-white' : 'bg-gray-100 hover:bg-gray-200'
               }`}
             >
               30 jours
@@ -323,7 +323,7 @@ const DashboardPage = () => {
             <button
               onClick={() => setPeriod('year')}
               className={`px-4 py-2 rounded transition-colors ${
-                period === 'year' ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                period === 'year' ? 'bg-primary text-white' : 'bg-gray-100 hover:bg-gray-200'
               }`}
             >
               1 an
@@ -401,7 +401,7 @@ const DashboardPage = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-2">
               <div className={`p-2 rounded ${benefice >= 0 ? 'bg-blue-100' : 'bg-orange-100'}`}>
-                <BarChart3 className={`w-6 h-6 ${benefice >= 0 ? 'text-blue-600' : 'text-orange-600'}`} />
+                <BarChart3 className={`w-6 h-6 ${benefice >= 0 ? 'text-primary' : 'text-orange-600'}`} />
               </div>
               {benefice >= 0 ? (
                 <TrendingUp className="w-5 h-5 text-green-500" />
@@ -422,7 +422,7 @@ const DashboardPage = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-2">
               <div className="p-2 bg-purple-100 rounded">
-                <Calendar className="w-6 h-6 text-purple-600" />
+                <Calendar className="w-6 h-6 text-primary" />
               </div>
             </div>
             <p className="text-sm text-gray-600 mb-1">Aujourd'hui</p>
@@ -442,7 +442,7 @@ const DashboardPage = () => {
         {/* Graphique principal - Évolution Ventes vs Dépenses */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-blue-600" />
+            <BarChart3 className="w-5 h-5 text-primary" />
             Évolution Ventes vs Dépenses
           </h2>
           <ResponsiveContainer width="100%" height={300}>
@@ -584,7 +584,7 @@ const DashboardPage = () => {
         {/* Graphique à barres comparatif */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-purple-600" />
+            <BarChart3 className="w-5 h-5 text-primary" />
             Comparaison Journalière
           </h2>
           <ResponsiveContainer width="100%" height={300}>

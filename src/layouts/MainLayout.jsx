@@ -22,7 +22,7 @@ const MainLayout = () => {
     ? "bg-red-100 text-red-600"
     : trialDaysRemaining <= 7
     ? "bg-orange-100 text-orange-600"
-    : "bg-blue-100 text-blue-600";
+    : "bg-blue-100 text-primary";
 
   const label = !isTrialUser
     ? ""
@@ -55,6 +55,43 @@ const MainLayout = () => {
 
   {/* FIN UX Dropdown : click outside non géré*/}
 
+  {/* Gestion des coulurs dynamique selon les chart du boutique client */}
+  useEffect(() => {
+    if (user?.boutique?.primary_color) {
+      const primary = user.boutique.primary_color;
+
+      document.documentElement.style.setProperty(
+        "--primary-color",
+        primary
+      );
+
+      document.documentElement.style.setProperty(
+        "--primary-color-hover",
+        darkenColor(primary, 12) // 12% plus foncé
+      );
+    }
+  }, [user]);
+
+  function darkenColor(hex, percent) {
+    const num = parseInt(hex.replace("#", ""), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = (num >> 16) - amt;
+    const G = ((num >> 8) & 0x00ff) - amt;
+    const B = (num & 0x0000ff) - amt;
+
+    return (
+      "#" +
+      (
+        0x1000000 +
+        (R < 0 ? 0 : R) * 0x10000 +
+        (G < 0 ? 0 : G) * 0x100 +
+        (B < 0 ? 0 : B)
+      )
+        .toString(16)
+        .slice(1)
+    );
+  }
+
   const handleLogout = async () => {
     await logout();
     window.location.href = "/login";
@@ -73,7 +110,7 @@ const MainLayout = () => {
             {user?.boutique?.logo ? (
               <img src={user?.boutique?.logo_url} className="h-8 w-8 object-contain" alt="logo" />
             ) : (
-              <div className="h-8 w-8 bg-violet-600 rounded flex items-center justify-center text-white">
+              <div className="h-8 w-8 bg-primary rounded flex items-center justify-center text-white">
                 {user?.boutique?.name?.charAt(0)}
               </div>
             )}
@@ -98,23 +135,23 @@ const MainLayout = () => {
 
             <nav className="flex gap-4">
 
-              <Link to="/" className="hover:text-violet-400 flex items-center gap-1">
+              <Link to="/" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
                 <Clock size={16} /> Compteur
               </Link>
 
-              <Link to="/sales" className="hover:text-violet-400 flex items-center gap-1">
+              <Link to="/sales" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
                 <ShoppingCart size={16} /> Ventes
               </Link>
 
-              <Link to="/expenses" className="hover:text-violet-400 flex items-center gap-1">
+              <Link to="/expenses" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
                 <DollarSign size={16} /> Dépenses
               </Link>
 
-              <Link to="/posters" className="hover:text-violet-400 flex items-center gap-1">
+              <Link to="/posters" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
                 <PrinterCheck size={16} /> Posters PDF
               </Link>
 
-              <Link to="/dashboard" className="hover:text-violet-400 flex items-center gap-1">
+              <Link to="/dashboard" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
                 <BarChart3 size={16} /> Dashboard
               </Link>
             </nav>
@@ -125,7 +162,7 @@ const MainLayout = () => {
                     onClick={() => setOpen(!open)}
                     className="flex items-center gap-2 text-sm text-gray-300 hover:text-white"
                 >
-                    <div className="bg-violet-600 w-8 h-8 rounded-full flex items-center justify-center font-bold">
+                    <div className="bg-primary w-8 h-8 rounded-full flex items-center justify-center font-bold">
                     {user?.name?.charAt(0).toUpperCase()}
                     </div>
                     <ChevronDown size={16} />
@@ -136,8 +173,8 @@ const MainLayout = () => {
                     <div className="p-4 border-b">
                         <p className="font-semibold">{user?.name}</p>
                         <p className="text-sm text-gray-500">{user?.email}</p>
-                        <Link to="/profile" className="text-sm text-violet-600 hover:underline">Paramètres</Link> - {" "}
-                        <Link to="/pricing" className="text-sm text-violet-600 hover:text-violet-600 transition">
+                        <Link to="/profile" className="text-sm text-primary hover:underline">Paramètres</Link> - {" "}
+                        <Link to="/pricing" className="text-sm text-primary hover:text-primary transition">
                           Voir les offres
                         </Link>
                     </div>
@@ -191,7 +228,7 @@ const MainLayout = () => {
 
               <button
                 onClick={() => window.location.href = "/pricing"}
-                className="w-full bg-violet-600 hover:bg-violet-700 text-white py-3 rounded-lg font-semibold transition"
+                className="w-full bg-primary border-primary text-white py-3 rounded-lg font-semibold transition"
               >
                 Choisir un plan
               </button>
@@ -216,7 +253,7 @@ const MainLayout = () => {
             href="https://agnaro.io/"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-violet-600 hover:underline font-medium"
+            className="text-primary hover:underline font-medium"
           >
             Agnarö Webcompany
           </a>
@@ -225,7 +262,7 @@ const MainLayout = () => {
             href="https://manou.agnaro.io/"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-violet-600 hover:underline font-medium"
+            className="text-primary hover:underline font-medium"
           >
             Manou
           </a>

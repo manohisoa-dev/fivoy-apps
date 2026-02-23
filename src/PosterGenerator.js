@@ -380,7 +380,7 @@ const PosterGenerator = () => {
         {/* Header */}
         <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-6">
           <h1 className="flex items-center justify-center text-3xl font-bold text-gray-800 mb-2">
-            <PrinterCheck className="w-8 h-8 text-blue-600 mr-2" />
+            <PrinterCheck className="w-8 h-8 text-primary mr-2" />
             Générateur de Posters PDF
           </h1>
           <p className="text-gray-600 text-center">
@@ -393,7 +393,7 @@ const PosterGenerator = () => {
           {/* Colonne gauche - Recherche TMDB */}
           <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-6">
             <div className="flex items-center space-x-2 mb-4">
-              <Search className="w-6 h-6 text-blue-600" />
+              <Search className="w-6 h-6 text-primary" />
               <h2 className="text-xl font-semibold">Recherche TMDB</h2>
             </div>
             
@@ -422,7 +422,7 @@ const PosterGenerator = () => {
                 <button
                   onClick={() => searchTMDB(searchQuery)}
                   disabled={isSearching}
-                  className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="w-full mt-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
                   {isSearching ? 'Recherche...' : 'Chercher'}
                 </button>
@@ -465,7 +465,7 @@ const PosterGenerator = () => {
           <div className="lg:col-span-1 bg-white rounded-lg shadow-lg p-6">
             <div className="flex  flex-wrap items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
-                <FileImage className="w-6 h-6 text-purple-600" />
+                <FileImage className="w-6 h-6 text-primary" />
                 <h2 className="text-xl font-semibold">Prévisualisation A4</h2>
               </div>
               <div className="text-sm text-gray-600">
@@ -548,7 +548,7 @@ const PosterGenerator = () => {
                   onClick={() => setOrientation('portrait')}
                   className={`px-2 py-1 text-xs rounded ${
                     orientation === 'portrait' 
-                      ? 'bg-blue-600 text-white' 
+                      ? 'bg-primary text-white' 
                       : 'bg-white text-gray-700 border'
                   }`}
                 >
@@ -558,7 +558,7 @@ const PosterGenerator = () => {
                   onClick={() => setOrientation('landscape')}
                   className={`px-2 py-1 text-xs rounded ${
                     orientation === 'landscape' 
-                      ? 'bg-blue-600 text-white' 
+                      ? 'bg-primary text-white' 
                       : 'bg-white text-gray-700 border'
                   }`}
                 >
@@ -609,7 +609,7 @@ const PosterGenerator = () => {
           {/* Colonne droite - Upload local et gestion */}
           <div className="lg:col-span-1 bg-white rounded-lg shadow-lg p-6">
             <div className="flex items-center space-x-2 mb-4">
-              <Upload className="w-6 h-6 text-purple-600" />
+              <Upload className="w-6 h-6 text-primary" />
               <h2 className="text-xl font-semibold">Images locales</h2>
             </div>
 
@@ -777,7 +777,7 @@ const PosterGenerator = () => {
                         <h3 className="font-semibold mb-2">Genres:</h3>
                         <div className="flex flex-wrap gap-2">
                           {movieDetails.genres.map(genre => (
-                            <span key={genre.id} className="px-2 py-1 bg-blue-600 rounded text-sm">
+                            <span key={genre.id} className="px-2 py-1 bg-primary rounded text-sm">
                               {genre.name}
                             </span>
                           ))}
@@ -875,7 +875,7 @@ const PosterGenerator = () => {
                               )}
                               {/* Badge langue */}
                               {poster.language && (
-                                <div className="absolute top-1 right-1 bg-blue-600 text-white text-xs px-1 rounded">
+                                <div className="absolute top-1 right-1 bg-primary text-white text-xs px-1 rounded">
                                   {poster.language.toUpperCase()}
                                 </div>
                               )}

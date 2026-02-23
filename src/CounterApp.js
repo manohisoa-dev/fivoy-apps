@@ -381,6 +381,12 @@ const FivoyCounterApp = () => {
     }
     
     setWifiPassword(password);
+
+    const getPrimaryColor = () => {
+      return getComputedStyle(document.documentElement)
+        .getPropertyValue("--primary-color")
+        .trim();
+    };
     
     // SweetAlert pour le mot de passe WiFi
     if (window.Swal) {
@@ -389,9 +395,10 @@ const FivoyCounterApp = () => {
         text: password,
         icon: 'success',
         confirmButtonText: 'OK',
+        confirmButtonColor: getPrimaryColor(),
         customClass: {
           title: 'text-lg font-bold',
-          content: 'text-2xl font-mono tracking-wider text-blue-600'
+          content: 'text-2xl font-mono tracking-wider text-primary'
         }
       });
     } else {
@@ -437,7 +444,7 @@ const FivoyCounterApp = () => {
         {/* Header avec heure actuelle */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <Clock className="w-8 h-8 text-blue-600" />
+            <Clock className="w-8 h-8 text-primary" />
             <h1 className="text-2xl font-bold text-gray-800">{currentTime}</h1>
           </div>
         </div>
@@ -446,11 +453,11 @@ const FivoyCounterApp = () => {
           {/* Colonne gauche - Calcul de connexion */}
           <div className="bg-white rounded-lg shadow-lg p-6">
             <div className="flex items-center space-x-2 mb-4">
-              <DollarSign className="w-6 h-6 text-violet-600" />
-              <h2 className="text-xl font-semibold text-violet-700">Calcul de Connexion</h2>
+              <DollarSign className="w-6 h-6 text-primary" />
+              <h2 className="text-xl font-semibold border-primary">Calcul de Connexion</h2>
             </div>
             
-            <div className="bg-violet-50 border border-violet-200 text-violet-700 p-3 rounded mb-4">
+            <div className="bg-violet-50 border border-violet-200 border-primary p-3 rounded mb-4">
               <i className="fas fa-exclamation-triangle mr-2"></i>
               Ne perdez pas votre heure de départ pour la connexion!
             </div>
@@ -517,8 +524,8 @@ const FivoyCounterApp = () => {
           {/* Colonne droite - Timers et outils */}
           <div className="bg-white rounded-lg shadow-lg p-6">
             <div className="flex items-center space-x-2 mb-4">
-              <Timer className="w-6 h-6 text-violet-600" />
-              <h2 className="text-xl font-semibold text-violet-700">Outils et Timers</h2>
+              <Timer className="w-6 h-6 text-primary" />
+              <h2 className="text-xl font-semibold border-primary">Outils et Timers</h2>
             </div>            
             
             {/* Timer/Chronomètre */}
@@ -544,7 +551,7 @@ const FivoyCounterApp = () => {
                 <button
                   onClick={startTimer}
                   disabled={timerRunning}
-                  className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="px-3 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
                   <Play className="w-4 h-4" />
                 </button>
@@ -588,7 +595,7 @@ const FivoyCounterApp = () => {
                 <button
                   onClick={startMoneyTimer}
                   disabled={moneyTimerRunning}
-                  className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="px-3 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
                   <Play className="w-4 h-4" />
                 </button>

@@ -34,3 +34,26 @@ code {
 .animate-popIn {
   animation: popIn 0.3s ease-out;
 }
+
+:root {
+  --primary-color: #7c3aed;
+  --primary-color-hover: #6d28d9;
+}
+
+/* Texte */
+.text-primary {
+  color: var(--primary-color);
+}
+
+.hover-text-primary:hover {
+  color: var(--primary-color-hover);
+}
+
+/* Background */
+.bg-primary {
+  background-color: var(--primary-color);
+}
+
+.hover-bg-primary:hover {
+  background-color: var(--primary-color-hover);
+}

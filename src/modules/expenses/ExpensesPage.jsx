@@ -255,7 +255,7 @@ const ExpensesPage = () => {
         {/* Filtres */}
         <div className="bg-white rounded-lg shadow p-4 mb-6">
           <div className="flex items-center gap-2 mb-4">
-            <Filter className="w-5 h-5 text-blue-600" />
+            <Filter className="w-5 h-5 text-primary" />
             <h2 className="text-lg font-semibold">Filtres</h2>
           </div>
           
@@ -319,7 +319,7 @@ const ExpensesPage = () => {
         <div className="flex flex-wrap gap-3 mb-6">
           <button
             onClick={() => setShowForm(true)}
-            className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2"
+            className="w-full md:w-auto px-4 py-2 bg-primary text-white rounded hover:bg-blue-700 flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             Ajouter une dépense
@@ -501,7 +501,7 @@ const ExpensesPage = () => {
                       onClick={() => paginate(index + 1)}
                       className={`px-3 py-2 border rounded ${
                         currentPage === index + 1
-                          ? 'bg-blue-600 text-white border-blue-600'
+                          ? 'bg-primary text-white border-primary'
                           : 'border-gray-300 hover:bg-gray-50'
                       }`}
                     >
@@ -562,7 +562,7 @@ const ExpensesPage = () => {
                       </div>
                       
                       <div className="bg-blue-50 p-3 rounded">
-                        <p className="text-sm text-blue-600">Total du jour</p>
+                        <p className="text-sm text-primary">Total du jour</p>
                         <p className="text-xl font-bold text-blue-800">{dayTotal.toLocaleString('fr-FR')} Ar</p>
                       </div>
                       

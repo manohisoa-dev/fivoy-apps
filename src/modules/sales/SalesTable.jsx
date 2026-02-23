@@ -85,7 +85,7 @@ const SalesTable = ({
               <td className="px-3 py-2">
                 <div className="flex items-center gap-2 justify-center">
                   <button
-                    className="px-2 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+                    className="px-2 py-1 rounded bg-primary text-white hover:bg-blue-700"
                     onClick={() => onEdit(s)}
                     title="Modifier"
                   >

@@ -83,7 +83,7 @@ const PricingPage = () => {
             }`}
           >
             {plan.highlight && (
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-violet-600 text-white text-xs px-4 py-1 rounded-full flex items-center gap-1">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-primary text-white text-xs px-4 py-1 rounded-full flex items-center gap-1">
                 <Star size={14} /> Le plus populaire
               </div>
             )}
@@ -108,7 +108,7 @@ const PricingPage = () => {
             <button
               className={`w-full py-3 rounded-lg font-semibold transition ${
                 plan.highlight
-                  ? "bg-violet-600 text-white hover:bg-violet-700"
+                  ? "bg-primary text-white border-primary"
                   : "bg-gray-700 hover:bg-gray-600 text-white"
               }`}
             >

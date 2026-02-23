@@ -114,7 +114,7 @@ export default function ProductsPage() {
                   setEditing(product);
                   setOpen(true);
                 }}
-                className="text-sm text-blue-600"
+                className="text-sm text-primary"
               >
                 Modifier
               </button>
