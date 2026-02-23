@@ -59,6 +59,8 @@ const FivoyCounterApp = () => {
   const [calculatedAmount, setCalculatedAmount] = useState(0);
   const [connectionMinutes, setConnectionMinutes] = useState(0);
 
+  const [autoSaved, setAutoSaved] = useState(false);
+
   // Mise à jour de l'heure actuelle
   useEffect(() => {
     const updateCurrentTime = () => {
@@ -122,6 +124,47 @@ const FivoyCounterApp = () => {
         icon: "error",
         confirmButtonText: "OK",
       });
+    }
+  };
+
+  const autoSaveTimerSale = async (minutes) => {
+    const totalAmount = minutes * PRICE_PER_MINUTE;
+
+    const saleData = {
+      date: new Date().toISOString().slice(0, 10),
+      client: null,
+      modePaiement: "Espèces",
+      notes: `Connexion internet - ${minutes} minutes (Timer automatique)`,
+      items: [
+        {
+          custom_name: "Connexion Internet",
+          custom_price: totalAmount,
+          quantity: 1
+        }
+      ]
+    };
+
+    await createSale(saleData);
+  };
+
+  const handleTimerFinished = async (minutesUsed) => {
+    try {
+      await withLoading(async () => {
+        await autoSaveTimerSale(minutesUsed);
+      });
+
+      Swal.fire({
+        title: `Connexion terminée (${minutesUsed} min)`,
+        text: "Vente ajoutée automatiquement.",
+        icon: "success",
+        confirmButtonText: "OK"
+      }).then(() => {
+        stopBeeping();
+      });
+
+    } catch (error) {
+      console.error("Erreur auto save:", error);
+      Swal.fire("Erreur", "Impossible d'enregistrer la vente.", "error");
     }
   };
 
@@ -200,26 +243,32 @@ const FivoyCounterApp = () => {
       
       if (remainingTime <= 0) {
         clearInterval(timerRef.current);
+        const minutesUsed = Math.round(initialSecondsRef.current / 60);
+
         setTimerDisplay('00:00');
         setTimerRunning(false);
         setTimerPaused(false);
-        
-        // Jouer le son d'alerte
-         playBeepSound();
-        
-        // SweetAlert au lieu d'alert()
-        if (window.Swal) {
-          window.Swal.fire({
-            title: `Minuteur terminé pour ${minutes} min!`,
-            text: 'Cliquez sur OK pour arrêter le bip sonore.',
-            icon: 'success',
-            confirmButtonText: 'OK'
+
+        playBeepSound();
+
+        try {
+          if (!autoSaved) {
+            setAutoSaved(true);
+            handleTimerFinished(minutesUsed);
+          }
+
+          Swal.fire({
+            title: `Connexion terminée (${minutesUsed} min)`,
+            text: `Vente ajoutée automatiquement.`,
+            icon: "success",
+            confirmButtonText: "OK"
           }).then(() => {
-            stopBeeping(); // Arrêter le bip
+            stopBeeping();
           });
-        } else {
-          alert(`Minuteur terminé pour ${minutes} min!\nCliquez sur OK pour arrêter le bip sonore.`);
-          stopBeeping();
+
+        } catch (error) {
+          console.error("Erreur auto save:", error);
+          Swal.fire("Erreur", "Impossible d'enregistrer la vente.", "error");
         }
       } else {
         const displayMinutes = Math.floor(remainingTime / 60000);
@@ -431,6 +480,8 @@ const FivoyCounterApp = () => {
 
     setCalculatedAmount(0);
     setConnectionMinutes(0);
+
+    setAutoSaved(false);
   };
 
   return (
