@@ -83,16 +83,15 @@ const FivoyCounterApp = () => {
       await withLoading(async () => {
         // Utiliser directement calculatedAmount au lieu d'extraire du JSX
         const saleData = {
-          date: new Date().toISOString().slice(0, 10), // Format YYYY-MM-DD
+          date: new Date().toISOString().slice(0, 10),
           client: null,
           modePaiement: "Espèces",
           notes: `Connexion internet - ${connectionMinutes} minutes`,
-          total: calculatedAmount,
           items: [
             {
-              name: "Connexion internet",
-              qty: 1,
-              price: calculatedAmount
+              custom_name: "Connexion Internet",
+              custom_price: calculatedAmount,
+              quantity: 1
             }
           ]
         };
@@ -439,10 +438,7 @@ const FivoyCounterApp = () => {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Clock className="w-8 h-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-800">Fivoy Services - Imerintsiatosika</h1>
-          </div>
-          <div className="text-xl font-mono font-semibold text-gray-700 bg-white rounded-lg py-2 px-4 inline-block shadow">
-            {currentTime}
+            <h1 className="text-2xl font-bold text-gray-800">{currentTime}</h1>
           </div>
         </div>
 

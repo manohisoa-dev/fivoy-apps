@@ -78,9 +78,10 @@ const DailyCash = ({ selectedDate }) => {
         notes: notes.trim(),
       };
 
-      const response = await api.post("/cash", payload);
+      await api.post("/cash", payload);
 
-      setCash(response.data);
+      await loadCash();
+
       setIsEditing(false);
 
     } catch (err) {

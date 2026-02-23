@@ -1,5 +1,5 @@
 import { Outlet, Link } from "react-router-dom";
-import { useState, useContext } from "react";
+import { useState, useContext, useRef, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { PrinterCheck, Clock, ShoppingCart, DollarSign, BarChart3, LogOut } from "lucide-react";
 import { User, Building2, ChevronDown } from "lucide-react";
@@ -29,6 +29,31 @@ const MainLayout = () => {
     : isExpired
     ? "❌ Essai expiré"
     : `⏳ Essai gratuit • ${trialDaysRemaining} jour${trialDaysRemaining !== 1 ? "s" : ""} restant${trialDaysRemaining !== 1 ? "s" : ""}`;
+
+  {/* UX Dropdown : click outside non géré*/}
+  const dropdownRef = useRef(null);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
+
+  {/* FIN UX Dropdown : click outside non géré*/}
 
   const handleLogout = async () => {
     await logout();
@@ -95,7 +120,7 @@ const MainLayout = () => {
             </nav>
 
             {/* User section */}
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
                 <button
                     onClick={() => setOpen(!open)}
                     className="flex items-center gap-2 text-sm text-gray-300 hover:text-white"
