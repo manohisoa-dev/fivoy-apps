@@ -57,3 +57,14 @@ code {
 .hover-bg-primary:hover {
   background-color: var(--primary-color-hover);
 }
+
+/* Override NProgress */
+#nprogress .bar {
+  background: var(--primary-color) !important;
+  height: 3px !important;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 10px var(--primary-color),
+              0 0 5px var(--primary-color) !important;
+}

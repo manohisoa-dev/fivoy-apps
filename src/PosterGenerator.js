@@ -262,8 +262,10 @@ const PosterGenerator = () => {
       let posterHeight;
 
       if (columns === 1) {
-        // En mode 1 colonne, déterminer combien d'images on veut par page
-        if (selectedPosters.length <= 2) {
+        if (columns === 1) {
+          maxRows = 1; // 1 image par ligne
+          posterHeight = availableHeight; // prend toute la hauteur dispo
+        }else if (selectedPosters.length > 1  && selectedPosters.length <= 2) {
           maxRows = 2; // Max 2 images par page
         } else if (selectedPosters.length <= 4) {
           maxRows = Math.min(4, selectedPosters.length); // Max 4 images par page
@@ -631,8 +633,8 @@ const PosterGenerator = () => {
                 onClick={() => fileInputRef.current?.click()}
                 className={`w-full border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
                   isDragOver 
-                    ? 'border-purple-500 bg-purple-50' 
-                    : 'border-gray-300 bg-gray-50 hover:border-purple-500 hover:bg-gray-100'
+                    ? 'border-primary bg-purple-50' 
+                    : 'border-gray-300 bg-gray-50 hover:border-primary hover:bg-gray-100'
                 }`}
               >
                 <FileImage className="w-8 h-8 mx-auto text-gray-400 mb-2" />
