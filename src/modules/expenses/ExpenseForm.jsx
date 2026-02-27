@@ -1,20 +1,7 @@
 import React, { useState } from "react";
 
 // Composant ExpenseForm intégré
-const ExpenseForm = ({ onSave, onCancel, initialExpense }) => {
-  const categories = [
-    "Approvisionnement stock",
-    "Avance sur salaire",
-    "Dîner",
-    "Divers",
-    "Essence",
-    "Goûter enfants",
-    "Main d'œuvre",
-    "Pièces cyclo",
-    "Randry",
-    "Repas midi",
-  ];  
-
+const ExpenseForm = ({ categories = [], onSave, onCancel, initialExpense }) => {
   const [expense, setExpense] = useState(
     initialExpense || {
       category: "",
@@ -102,8 +89,8 @@ const ExpenseForm = ({ onSave, onCancel, initialExpense }) => {
         >
           <option value="">-- Choisir une catégorie --</option>
           {categories.map((c) => (
-            <option key={c} value={c}>
-              {c}
+            <option key={c.id} value={c.id}>
+              {c.name}
             </option>
           ))}
         </select>

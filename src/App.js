@@ -8,6 +8,7 @@ import MainLayout from "./layouts/MainLayout";
 import DashboardPage from "./modules/dashboard/DashboardPage";
 import SalesPage from "./modules/sales/SalesPage";
 import ExpensesPage from "./modules/expenses/ExpensesPage";
+import ExpenseCategoriesPage from "./modules/expenses/ExpenseCategoriesPage";
 import ProfileSettings from "./modules/profile/ProfileSettings";
 import CounterApp from "./CounterApp";
 import PosterGenerator from "./PosterGenerator";
@@ -29,6 +30,7 @@ function App() {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/sales" element={<SalesPage />} />
               <Route path="/expenses" element={<ExpensesPage />} />
+              <Route path="/expense-categories" element={<ExpenseCategoriesPage />} />
               <Route path="/posters" element={<PosterGenerator />} />
               <Route path="/profile" element={<ProfileSettings />} />
               <Route path="/pricing" element={<PricingPage />} />

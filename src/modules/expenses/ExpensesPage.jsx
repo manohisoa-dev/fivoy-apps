@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
-import { DollarSign, Plus, TrendingDown, Calendar, BarChart3, Filter, ChevronLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
+import { DollarSign, Plus, Settings2, TrendingDown, Calendar, BarChart3, Filter, ChevronLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import ExpenseForm from "./ExpenseForm";
 import { useLoadingStore } from '../../store/loading';
 import api from "../../api/api";
 import Swal from 'sweetalert2';   
+import { useNavigate } from "react-router-dom";
 
-
-// Couleurs pour le graphique en secteurs
-const COLORS = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'];
 
 const ExpensesPage = () => {
   const [expenses, setExpenses] = useState([]);
@@ -30,6 +28,19 @@ const ExpensesPage = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+
+  const [categories, setCategories] = useState([]);
+
+  const navigate = useNavigate();
+
+  const loadCategories = async () => {
+    try {
+      const res = await api.get("/expense-categories");
+      setCategories(res.data);
+    } catch (err) {
+      console.error("Erreur catégories:", err);
+    }
+  };
 
   const loadExpenses = async () => {
     try {
@@ -92,6 +103,7 @@ const ExpensesPage = () => {
 
   useEffect(() => {
     loadExpenses();
+    loadCategories();
   }, []);
 
   useEffect(() => {
@@ -102,7 +114,7 @@ const ExpensesPage = () => {
     try {
       const payload = {
         date: form.date,
-        category: form.category,
+        expense_category_id: form.category,
         amount: Number(form.amount),
         note: form.notes || null,
         paid_by: "caisse",
@@ -160,11 +172,16 @@ const ExpensesPage = () => {
 
   const getChartData = () => {
     const categoryData = getExpensesByCategory();
-    return Object.entries(categoryData).map(([name, value]) => ({
-      name,
-      value,
-      formatted: `${Number(value).toLocaleString("fr-FR")} Ar`
-    }));
+
+    return Object.entries(categoryData).map(([name, value]) => {
+      const cat = categories.find(c => c.name === name);
+
+      return {
+        name,
+        value,
+        color: cat?.color || "#3B82F6"
+      };
+    });
   };
 
   const getUniqueCategories = () => {
@@ -324,6 +341,14 @@ const ExpensesPage = () => {
             <Plus className="w-4 h-4" />
             Ajouter une dépense
           </button>
+
+          <button
+            onClick={() => navigate("/expense-categories")}
+            className="w-full md:w-auto px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 flex items-center gap-2"
+          >
+            <Settings2 className="w-4 h-4" />
+            Gérer catégories
+          </button>
           
           <button
             onClick={() => setShowDailyReport(true)}
@@ -355,7 +380,7 @@ const ExpensesPage = () => {
                       dataKey="value"
                     >
                       {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell key={index} fill={entry.color} />
                       ))}
                     </Pie>
                     <Tooltip formatter={(value) => `${Number(value).toLocaleString("fr-FR")} Ar`} />
@@ -375,7 +400,7 @@ const ExpensesPage = () => {
                       <div className="flex items-center gap-3">
                         <div 
                           className="w-4 h-4 rounded"
-                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                          style={{ backgroundColor: category.color }}
                         ></div>
                         <span className="font-medium">{category}</span>
                       </div>
@@ -407,6 +432,7 @@ const ExpensesPage = () => {
               </button>
             </div>
             <ExpenseForm 
+              categories={categories}
               onSave={handleSaveExpense} 
               onCancel={handleCancelExpense}
             />
@@ -455,7 +481,7 @@ const ExpensesPage = () => {
                     </td>
                     <td className="px-3 py-2">
                       <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                        {e.category}
+                        {e.category?.name}
                       </span>
                     </td>
                     <td className="px-3 py-2 text-right font-semibold text-red-600">
