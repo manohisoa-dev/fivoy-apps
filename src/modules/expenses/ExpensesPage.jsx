@@ -85,7 +85,7 @@ const ExpensesPage = () => {
     
     // Filtrer par catégorie
     if (selectedCategory) {
-      filtered = filtered.filter(expense => expense.category === selectedCategory);
+      filtered = filtered.filter(expense => expense.expense_category_id === selectedCategory);
     }
     
     setFilteredExpenses(filtered);
@@ -162,10 +162,12 @@ const ExpensesPage = () => {
   const getExpensesByCategory = () => {
     const categories = {};
     filteredExpenses.forEach(expense => {
-      if (!categories[expense.category]) {
-        categories[expense.category] = 0;
+      const name = expense.category?.name || expense.category_snapshot;
+
+      if (!categories[name]) {
+          categories[name] = 0;
       }
-      categories[expense.category] += Number(expense.amount);
+      categories[name] += Number(expense.amount);
     });
     return categories;
   };
@@ -185,7 +187,7 @@ const ExpensesPage = () => {
   };
 
   const getUniqueCategories = () => {
-    return [...new Set(expenses.map(expense => expense.category))];
+    return [...new Set(expenses.map(expense => expense.category?.name))];
   };
 
   // Pagination

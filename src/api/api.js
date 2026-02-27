@@ -5,7 +5,6 @@ import "nprogress/nprogress.css";
 
 const api = axios.create({
   baseURL: "https://api.agnaro.io/api",
-  //baseURL: "http://api.fivoy.loc/api",
 });
 
 export const setAuthToken = (token) => {
