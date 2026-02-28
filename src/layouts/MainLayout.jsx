@@ -1,7 +1,7 @@
 import { Outlet, Link } from "react-router-dom";
 import { useState, useContext, useRef, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { PrinterCheck, Clock, ShoppingCart, DollarSign, BarChart3, LogOut } from "lucide-react";
+import { PrinterCheck, Clock, ShoppingCart,History , DollarSign, BarChart3, LogOut } from "lucide-react";
 import { User, Building2, ChevronDown } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import LoadingOverlay from "../components/LoadingOverlay";
@@ -11,6 +11,7 @@ const MainLayout = () => {
   const { user, logout, trialDaysRemaining, initialized } = useContext(AuthContext);
 
   const location = useLocation();
+  const isPOS = location.pathname === "/pos";
   const isPricingPage = location.pathname === "/pricing";
 
   const isTrialUser = trialDaysRemaining !== null;
@@ -103,7 +104,7 @@ const MainLayout = () => {
     <div>
       {/* Navbar */}
       <div className="bg-gray-800 text-white p-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <div className={isPOS ? "flex justify-between items-center px-0" : "max-w-7xl mx-auto flex justify-between items-center"}>
           
           {/* Logo */}
           <div className="flex items-center gap-3">
@@ -139,8 +140,12 @@ const MainLayout = () => {
                 <Clock size={16} /> Compteur
               </Link>
 
-              <Link to="/sales" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
-                <ShoppingCart size={16} /> Ventes
+              <Link to="/pos" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
+                <ShoppingCart  size={16} /> Caisse
+              </Link>
+
+              <Link to="/sales-history" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
+                <History size={16} /> Historique de Ventes
               </Link>
 
               <Link to="/expenses" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">

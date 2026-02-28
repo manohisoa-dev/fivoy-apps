@@ -230,8 +230,8 @@ useEffect(() => {
         </div>
 
         {/* Liste + Form */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <div className="lg:col-span-3">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-5">
             {/* Daily Cash */}
             <div className="mb-4">
               <DailyCash 
@@ -256,7 +256,7 @@ useEffect(() => {
             </div>
           </div>
 
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-7">
             <div className="bg-white rounded-lg shadow-lg p-4">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-lg font-semibold text-gray-800">

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Plus, X, Calculator } from "lucide-react";
-import ItemPicker from "./ItemPicker";
+import POSCatalog from "./POSCatalog";
+import Swal from "sweetalert2";
 
 const emptyProductItem = {
   type: "catalog",
@@ -65,7 +66,12 @@ const SaleForm = ({ initialSale, onCancel, onSave }) => {
     });
 
     if (cleanItems.length === 0) {
-      alert("Veuillez saisir au moins un article valide (nom + quantité + prix).");
+      Swal.fire({
+        icon: "warning",
+        title: "Panier vide",
+        text: "Ajoutez au moins un article avant de créer la vente.",
+        confirmButtonColor: "#2563eb"
+      });
       return;
     }
 
@@ -154,15 +160,35 @@ const SaleForm = ({ initialSale, onCancel, onSave }) => {
                     </div>
                   </div>
 
-                  <input
-                    type="number"
-                    min="1"
-                    className="col-span-2 px-2 py-2 border rounded-lg"
-                    value={it.quantity}
-                    onChange={(e) =>
-                      updateItem(idx, { quantity: Number(e.target.value) })
-                    }
-                  />
+                  <div className="col-span-3 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateItem(idx, {
+                          quantity: Math.max(1, it.quantity - 1)
+                        })
+                      }
+                      className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                    >
+                      -
+                    </button>
+
+                    <div className="min-w-[32px] text-center font-semibold">
+                      {it.quantity}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateItem(idx, {
+                          quantity: it.quantity + 1
+                        })
+                      }
+                      className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                    >
+                      +
+                    </button>
+                  </div>
 
                   <input
                     type="number"
@@ -238,19 +264,33 @@ const SaleForm = ({ initialSale, onCancel, onSave }) => {
         </div>
 
          {/* Sélecteur rapide du catalogue */}
-        <div className="mt-4">
-          <ItemPicker
+        <div className="mt-6">
+          <POSCatalog
             onPick={(p) => {
-              setItems(prev => [
-                ...prev,
-                {
-                  type: "catalog",
-                  product_id: p.product_id,
-                  product_name: p.product_name,
-                  quantity: 1,
-                  unit_price: p.unit_price,
+              setItems(prev => {
+                const existingIndex = prev.findIndex(
+                  it => it.product_id === p.product_id
+                );
+
+                if (existingIndex !== -1) {
+                  return prev.map((it, i) =>
+                    i === existingIndex
+                      ? { ...it, quantity: it.quantity + 1 }
+                      : it
+                  );
                 }
-              ]);
+
+                return [
+                  ...prev,
+                  {
+                    type: "catalog",
+                    product_id: p.product_id,
+                    product_name: p.product_name,
+                    quantity: 1,
+                    unit_price: p.unit_price,
+                  }
+                ];
+              });
             }}
           />
         </div>
@@ -260,7 +300,9 @@ const SaleForm = ({ initialSale, onCancel, onSave }) => {
       <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
         <div className="text-gray-700">
           <div>Sous-total : <b>{subTotal.toLocaleString("fr-FR")} Ar</b></div>
-          <div>Total : <b className="text-gray-900">{total.toLocaleString("fr-FR")} Ar</b></div>
+          <div className="text-2xl font-bold text-right text-green-600">
+            TOTAL : {total.toLocaleString("fr-FR")} Ar
+          </div>
         </div>
 
         <div className="flex gap-2">
