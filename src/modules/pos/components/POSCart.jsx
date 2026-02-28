@@ -6,6 +6,7 @@ export default function POSCart({
   handleSubmit
 }) {
 
+const itemsCount = items.reduce((sum, i) => sum + i.quantity, 0);
   return (
     <div className="w-[380px] flex flex-col h-full border-l bg-white relative">
 
@@ -21,56 +22,61 @@ export default function POSCart({
         {items.map(item => (
           <div
             key={item.id}
-            className="border rounded-lg px-3 py-2 flex justify-between items-center"
-          >
-            <div className="flex-1">
-              <div className="font-medium text-sm truncate">
-                {item.product_name}
-              </div>
+            className="border rounded-lg px-3 py-2 flex justify-between items-start gap-3"
+            >
+            {/* Colonne gauche */}
+            <div className="flex-1 min-w-0">
 
-              <div className="flex items-center gap-2 mt-1">
+                <div className="font-medium text-sm truncate">
+                {item.product_name}
+                </div>
+
+                <div className="flex items-center gap-2 mt-1">
                 <button
-                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                  className="w-7 h-7 flex items-center justify-center bg-gray-200 rounded"
+                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                    className="w-7 h-7 flex items-center justify-center bg-gray-200 rounded"
                 >
-                  -
+                    -
                 </button>
 
                 <span className="w-6 text-center text-sm">
-                  {item.quantity}
+                    {item.quantity}
                 </span>
 
                 <button
-                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                  className="w-7 h-7 flex items-center justify-center bg-gray-200 rounded"
+                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    className="w-7 h-7 flex items-center justify-center bg-gray-200 rounded"
                 >
-                  +
+                    +
                 </button>
-              </div>
+                </div>
+
             </div>
 
-            <div className="text-right ml-3">
-              <div className="font-semibold text-sm">
+            {/* Colonne droite */}
+            <div className="flex-shrink-0 text-right w-[90px]">
+                
+                <div className="font-semibold text-sm whitespace-nowrap">
                 {(item.unit_price * item.quantity).toLocaleString()} Ar
-              </div>
+                </div>
 
-              <button
+                <button
                 onClick={() => removeItem(item.id)}
                 className="text-red-500 text-xs mt-1 hover:underline"
-              >
+                >
                 Supprimer
-              </button>
+                </button>
+
             </div>
-          </div>
+            </div>
         ))}
 
       </div>
 
       {/* BLOC TOTAL FIXE GLOBAL */}
       <div className="fixed bottom-6 right-6 w-[380px] bg-slate-900 text-white p-5 border-t border-green-500 shadow-2xl rounded-lg">
-
         <div className="text-xs uppercase tracking-wide opacity-70">
-          Total
+        {itemsCount} article{itemsCount > 1 ? "s" : ""}
         </div>
 
         <div className="text-3xl font-bold mt-1">

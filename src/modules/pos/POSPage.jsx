@@ -107,21 +107,21 @@ export default function POSPage() {
             <div className="text-right">
                 <div className="text-gray-400 uppercase tracking-wide">Ventes</div>
                 <div className="font-semibold text-green-600">
-                {stats.sales_total.toLocaleString()} Ar
+                {Number(stats.sales_total).toLocaleString()} Ar
                 </div>
             </div>
 
             <div className="text-right">
                 <div className="text-gray-400 uppercase tracking-wide">Dépenses</div>
                 <div className="font-semibold text-red-500">
-                {stats.expenses_total.toLocaleString()} Ar
+                {Number(stats.expenses_total).toLocaleString()} Ar
                 </div>
             </div>
 
             <div className="text-right">
                 <div className="text-gray-400 uppercase tracking-wide">Solde</div>
                 <div className="font-semibold text-blue-600">
-                {stats.theoretical_balance.toLocaleString()} Ar
+                {Number(stats.theoretical_balance).toLocaleString()} Ar
                 </div>
             </div>
 
