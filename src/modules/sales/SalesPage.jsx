@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ShoppingCart, Plus, Search, Trash2, Pencil, RotateCcw, Download } from "lucide-react";
-import SaleForm from "./SaleForm";
+import { ShoppingCart, Search, Trash2, Pencil, Download } from "lucide-react";
 import SalesTable from "./SalesTable";
 import { loadFromStorage, saveToStorage, exportArrayToCSV } from "../../utils/storage";
 import { fetchSales, createSale, updateSale, deleteSale as deleteSaleDb } from "./salesApi";
@@ -13,8 +12,7 @@ const SalesPage = () => {
   const { withLoading } = useLoadingStore.getState();
   const [sales, setSales] = useState([]);
   const [query, setQuery] = useState("");
-  const [editingSale, setEditingSale] = useState(null);
-  const [showForm, setShowForm] = useState(false);
+  const [editingSale, setEditingSale] = useState(null); 
   
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0,10));
   const [page, setPage] = useState(1);
@@ -69,10 +67,6 @@ useEffect(() => {
     );
   }, [query, sales]);
 
-  const handleCreate = () => {
-    setEditingSale(null);
-    setShowForm(true);
-  };
 
  const handleSave = async (sale) => {
   if (saving) return;               // évite double-clic / double Enter
@@ -90,7 +84,6 @@ useEffect(() => {
     console.error("Erreur Supabase:", e);
     alert("Erreur de sauvegarde. Vérifie ta connexion.");
   } finally {
-    setShowForm(false);
     setEditingSale(null);
     setSaving(false);
   }
@@ -99,7 +92,6 @@ useEffect(() => {
 
   const handleEdit = (sale) => {
     setEditingSale(sale);
-    setShowForm(true);
   };
 
   const handleDelete = async (id) => {
@@ -170,12 +162,6 @@ useEffect(() => {
 
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={handleCreate}
-                className="w-full md:w-auto px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg flex items-center justify-center gap-2"
-              >
-                <Plus className="w-4 h-4" /> Nouvelle vente
-              </button>
-              <button
                 onClick={handleExportCSV}
                 className="w-full md:w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-2"
               >
@@ -230,7 +216,7 @@ useEffect(() => {
         </div>
 
         {/* Liste + Form */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="space-y-6">
           <div className="lg:col-span-5">
             {/* Daily Cash */}
             <div className="mb-4">
@@ -252,41 +238,6 @@ useEffect(() => {
 
               {filtered.length === 0 && (
                 <p className="text-center text-gray-500 py-6">Aucune vente pour le moment.</p>
-              )}
-            </div>
-          </div>
-
-          <div className="lg:col-span-7">
-            <div className="bg-white rounded-lg shadow-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-semibold text-gray-800">
-                  {editingSale ? "Modifier la vente" : "Créer une vente"}
-                </h2>
-                {showForm && (
-                  <button
-                    onClick={() => { setShowForm(false); setEditingSale(null); }}
-                    className="text-gray-600 hover:text-gray-800"
-                    title="Fermer le formulaire"
-                  >
-                    <Trash2 className="w-5 h-5 rotate-45" />
-                  </button>
-                )}
-              </div>
-
-              {!showForm ? (
-                <button
-                  onClick={handleCreate}
-                  className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50"
-                >
-                  + Ajouter une nouvelle vente
-                </button>
-              ) : (
-                <SaleForm
-                  key={editingSale?.id || "new"}
-                  initialSale={editingSale}
-                  onCancel={() => { setShowForm(false); setEditingSale(null); }}
-                  onSave={handleSave}
-                />
               )}
             </div>
           </div>
