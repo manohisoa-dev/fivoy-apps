@@ -1,12 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import api from "../../api/api";
+
 import { createProduct, updateProduct } from "./productService";
 
 export default function ProductFormModal({ product, onClose, onSuccess }) {
   const [form, setForm] = useState({
     name: product?.name || "",
     price: product?.price || "",
-    unit: product?.unit || ""
+    unit: product?.unit || "",
+    category_id: product?.category_id || ""
   });
+
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    api.get("/product-categories").then(res => {
+      setCategories(res.data);
+    });
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,6 +39,21 @@ export default function ProductFormModal({ product, onClose, onSuccess }) {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <select
+            value={form.category_id}
+            onChange={(e) =>
+              setForm({ ...form, category_id: e.target.value })
+            }
+            className="w-full border rounded-xl px-3 py-2"
+          >
+            <option value="">Choisir catégorie</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+          
           <input
             placeholder="Nom"
             value={form.name}
