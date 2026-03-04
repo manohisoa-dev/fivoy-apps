@@ -1,0 +1,11 @@
+RewriteEngine On
+
+RewriteBase /
+
+# si le fichier existe on le sert
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# sinon React gère la route
+RewriteRule ^ index.html [L]
