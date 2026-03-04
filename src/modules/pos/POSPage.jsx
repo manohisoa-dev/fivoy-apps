@@ -6,12 +6,17 @@ import { toast } from "react-hot-toast";
 import POSCatalog from "./components/POSCatalog";
 import POSCart from "./components/POSCart";
 
+import { Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 export default function POSPage() {
 
     const { categories, loading } = useGroupedProducts();
 
     const [items, setItems] = useState([]);
     const [stats, setStats] = useState(null);
+
+    const navigate = useNavigate();
 
     const loadStats = async () => {
         try {
@@ -103,6 +108,13 @@ export default function POSPage() {
         {/* Bandeau Stats */}
         {stats && (
         <div className="bg-gray-50 border-b px-6 py-2 flex justify-end gap-8 text-xs">
+            <button
+              onClick={() => navigate("/products")}
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg"
+            >
+              <Settings className="w-4 h-4" />
+              Gérer produits
+            </button>
 
             <div className="text-right">
                 <div className="text-gray-400 uppercase tracking-wide">Ventes</div>

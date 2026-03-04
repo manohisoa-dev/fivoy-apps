@@ -1,6 +1,8 @@
 import { useState } from "react";
 import useProductsAdmin from "./useProductsAdmin";
 import ProductFormModal from "./ProductFormModal";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import api from "../../api/api";
 import Swal from "sweetalert2";
 
@@ -8,6 +10,8 @@ export default function ProductsPage() {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+
+  const navigate = useNavigate();
 
   const [filter, setFilter] = useState("1"); // 1 = actifs par défaut
   const { products, loading, reload } = useProductsAdmin(search, filter);
@@ -48,6 +52,14 @@ export default function ProductsPage() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">Produits</h1>
+
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-4 flex items-center gap-2 text-primary"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour à la page précédente
+        </button>
 
         <button
           onClick={() => {
