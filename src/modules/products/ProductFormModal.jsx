@@ -45,9 +45,11 @@ export default function ProductFormModal({ product, onClose, onSuccess }) {
               setForm({ ...form, category_id: e.target.value })
             }
             className="w-full border rounded-xl px-3 py-2"
+            required
           >
-            <option value="">Choisir catégorie</option>
-            {categories.map(cat => (
+            <option value="">Choisir une catégorie</option>
+
+            {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
               </option>
