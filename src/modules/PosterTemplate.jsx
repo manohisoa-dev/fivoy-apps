@@ -17,9 +17,9 @@ const PosterTemplate = ({ poster, template, watermark = false, boutiqueName, bou
         className="w-full h-full object-cover"
       />
 
-      {template !== "standard" && (
-        <div className="absolute top-6 right-[-60px] rotate-45 bg-red-600 text-white font-bold px-24 py-2 text-xl shadow-lg">
-          {ribbonText[template]}
+      {template && template !== "none" && (
+        <div className="absolute top-6 right-[-60px] rotate-45 text-white font-bold px-24 py-2 text-xl shadow-lg">
+          {ribbonText[template] || ""}
         </div>
       )}
 
@@ -38,7 +38,7 @@ const PosterTemplate = ({ poster, template, watermark = false, boutiqueName, bou
               transform: "rotate(-30deg)"
             }}
           >
-            <span className="text-white text-7xl opacity-7 font-bold tracking-[0.4em]">
+            <span className="text-white text-6xl opacity-5 font-bold">
               {boutiqueName?.toUpperCase()}
             </span>
           </div>

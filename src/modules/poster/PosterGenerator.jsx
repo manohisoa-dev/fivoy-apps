@@ -6,6 +6,8 @@ import api from "../../api/api";
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import PosterTemplate from "../PosterTemplate";
+import toast from "react-hot-toast";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 const PosterGenerator = () => {
   // États pour la recherche TMDB
@@ -14,6 +16,8 @@ const PosterGenerator = () => {
   const [isSearching, setIsSearching] = useState(false);
 
   const { user } = useContext(AuthContext);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showWatermark, setShowWatermark] = useState(true);
   
   // États pour la configuration
   const [orientation, setOrientation] = useState('portrait'); // portrait ou landscape
@@ -30,7 +34,7 @@ const PosterGenerator = () => {
 
   const [isDragOver, setIsDragOver] = useState(false);
 
-  const [selectedTemplate, setSelectedTemplate] = useState('standard');
+  const [selectedTemplate, setSelectedTemplate] = useState('none');
 
   const getPosterUrl = (poster) => {
     return poster.source === "tmdb" ? poster.poster_path : poster.url;
@@ -394,31 +398,59 @@ const PosterGenerator = () => {
 
     if (!exportRef.current) return;
 
+    const toastId = toast.loading("Génération de l'image...");
+    setIsGenerating(true);
+
     try {
 
-      const canvas = await html2canvas(exportRef.current, {
-        scale: 4,
+        // attendre que toutes les images soient chargées
+        const images = exportRef.current.querySelectorAll("img");
+
+        await Promise.all(
+        Array.from(images).map(img => {
+            if (img.complete) return Promise.resolve();
+
+            return new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+            });
+        })
+        );
+
+        // petit délai pour être sûr que le DOM est prêt
+        await new Promise(r => setTimeout(r, 200));
+
+        const canvas = await html2canvas(exportRef.current, {
+        scale: 3,
         useCORS: true,
-        allowTaint: true,
         backgroundColor: "#ffffff"
-      });
+        });
 
-      const link = document.createElement("a");
+        const link = document.createElement("a");
 
-      link.download = `fivoy-poster-${Date.now()}.png`;
-      link.href = canvas.toDataURL("image/png");
+        link.download = `fivoy-poster-${Date.now()}.png`;
+        link.href = canvas.toDataURL("image/png");
 
-      link.click();
+        link.click();
+
+        toast.success("Image générée avec succès", { id: toastId });
 
     } catch (error) {
 
-      console.error("Erreur export image :", error);
+        console.error("Erreur export image :", error);
+        toast.error("Erreur lors de la génération", { id: toastId });
+
+    } finally {
+
+        setIsGenerating(false);
 
     }
-
-  };
+    };
 
   return (
+    <>
+    {isGenerating && <LoadingOverlay />}
+    
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -447,6 +479,17 @@ const PosterGenerator = () => {
             <option value="vostfr">VOSTFR</option>
             <option value="drama">Drama</option>
           </select>
+
+          <div className="flex items-center gap-2 mt-2">
+            <input
+                type="checkbox"
+                checked={showWatermark}
+                onChange={(e) => setShowWatermark(e.target.checked)}
+            />
+            <label className="text-sm text-gray-600">
+                Ajouter le watermark de la boutique
+            </label>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 my-6">
@@ -561,13 +604,13 @@ const PosterGenerator = () => {
                         key={poster.id}
                         poster={poster.source === "tmdb" ? poster.poster_path : poster.url}
                         template={selectedTemplate}
-                        watermark={true}
+                        watermark={showWatermark}
                         boutiqueName={user?.boutique?.name}
                         boutiqueLogo={user?.boutique?.logo_url}
                         />
                     ))}
 
-                  {selectedTemplate !== "standard" && (
+                  {selectedTemplate && selectedTemplate !== "none" && (
                     <div
                       style={{
                         position: "absolute",
@@ -595,7 +638,7 @@ const PosterGenerator = () => {
                         letterSpacing: "2px"
                       }}
                     >
-                      {selectedTemplate.toUpperCase()}
+                      {selectedTemplate !== "none" ? selectedTemplate.toUpperCase() : ""}
                     </div>
                   )}
 
@@ -633,7 +676,7 @@ const PosterGenerator = () => {
                         key={poster.id}
                         className="relative bg-gray-100 rounded overflow-hidden group"
                       >
-                        {selectedTemplate !== "standard" && (
+                        {selectedTemplate !== "none" && (
                           <div
                             style={{
                               position: "absolute",
@@ -1120,6 +1163,7 @@ const PosterGenerator = () => {
       )}
 
     </div>
+    </>
   );
 };
 
