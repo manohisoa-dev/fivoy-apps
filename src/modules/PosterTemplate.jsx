@@ -5,8 +5,20 @@ const PosterTemplate = ({ poster, template, watermark = false, boutiqueName, bou
     serie: "SÉRIE",
     nouveaute: "NOUVEAUTÉ",
     vostfr: "VOSTFR",
-    drama: "DRAMA"
+    drama: "DRAMA",
+    cartoon: "CARTOON",
+    manga: "MANGA"
   };
+
+  const badgeColors = {
+    film: "#3b82f6",
+    serie: "#10b981",
+    nouveaute: "#ef4444",
+    vostfr: "#f59e0b",
+    drama: "#8b5cf6",
+    cartoon: "#06b6d4",
+    manga: "#ec4899"
+  }
 
   return (
 
@@ -18,10 +30,17 @@ const PosterTemplate = ({ poster, template, watermark = false, boutiqueName, bou
       />
 
       {template && template !== "none" && (
-        <div className="absolute top-6 right-[-60px] rotate-45 text-white font-bold px-24 py-2 text-xl shadow-lg">
-          {ribbonText[template] || ""}
+        <div
+          className="absolute top-6 right-6 text-white px-4 py-8 rounded-md text-4xl font-bold"
+          style={{
+            backgroundColor: badgeColors[template] || "#ef4444",
+            zIndex: 20
+          }}
+        >
+          {ribbonText[template]}
         </div>
       )}
+      
 
       {watermark && (
         <>
@@ -38,7 +57,7 @@ const PosterTemplate = ({ poster, template, watermark = false, boutiqueName, bou
               transform: "rotate(-30deg)"
             }}
           >
-            <span className="text-white text-6xl opacity-5 font-bold">
+            <span className="text-white text-8xl opacity-5 font-bold">
               {boutiqueName?.toUpperCase()}
             </span>
           </div>
