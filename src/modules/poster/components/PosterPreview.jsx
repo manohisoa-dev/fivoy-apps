@@ -238,7 +238,7 @@ const PosterPreview = ({
         <button
           onClick={exportImage}
           disabled={selectedPosters.length === 0}
-          className="bg-purple-600 text-black py-2 rounded-lg hover:bg-purple-700 flex items-center justify-center space-x-2"
+          className="bg-primary text-white py-2 rounded-lg hover:bg-blue-600 flex items-center justify-center space-x-2"
         >
           <FileImage className="w-5 h-5" />
           <span>Télécharger Image</span>
