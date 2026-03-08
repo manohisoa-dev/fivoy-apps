@@ -11,7 +11,7 @@ import ExpensesPage from "./modules/expenses/ExpensesPage";
 import ExpenseCategoriesPage from "./modules/expenses/ExpenseCategoriesPage";
 import ProfileSettings from "./modules/profile/ProfileSettings";
 import CounterApp from "./CounterApp";
-import PosterGenerator from "./PosterGenerator";
+import PosterGenerator from "./modules/poster/PosterGenerator";
 import ProductsPage from "./modules/products/ProductsPage";
 import { Toaster } from "react-hot-toast";
 

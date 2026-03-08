@@ -1,13 +1,19 @@
 import React, { useState, useRef } from 'react';
 import { PrinterCheck , Search, Upload, Download, Trash2, RotateCcw, Plus, X, Grid, FileImage } from 'lucide-react';
 import { jsPDF } from 'jspdf';
-import api from "./api/api";
+import html2canvas from "html2canvas";
+import api from "../../api/api";
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
+import PosterTemplate from "../PosterTemplate";
 
 const PosterGenerator = () => {
   // États pour la recherche TMDB
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  const { user } = useContext(AuthContext);
   
   // États pour la configuration
   const [orientation, setOrientation] = useState('portrait'); // portrait ou landscape
@@ -19,8 +25,16 @@ const PosterGenerator = () => {
   // États pour l'upload local
   const [localImages, setLocalImages] = useState([]);
   const fileInputRef = useRef(null);
+  const previewRef = useRef(null);
+  const exportRef = useRef(null);
 
   const [isDragOver, setIsDragOver] = useState(false);
+
+  const [selectedTemplate, setSelectedTemplate] = useState('standard');
+
+  const getPosterUrl = (poster) => {
+    return poster.source === "tmdb" ? poster.poster_path : poster.url;
+  };
 
   // Etats et gestion du drag & drop
   const handleDragOver = (e) => {
@@ -315,7 +329,7 @@ const PosterGenerator = () => {
         }
 
         try {
-          let imageSrc = poster.source === 'tmdb' ? poster.poster_path : poster.url;
+          let imageSrc = getPosterUrl(poster);
           
           // Charger l'image
           if (poster.source === 'tmdb') {
@@ -376,6 +390,34 @@ const PosterGenerator = () => {
     }
   };
 
+  const exportImage = async () => {
+
+    if (!exportRef.current) return;
+
+    try {
+
+      const canvas = await html2canvas(exportRef.current, {
+        scale: 4,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff"
+      });
+
+      const link = document.createElement("a");
+
+      link.download = `fivoy-poster-${Date.now()}.png`;
+      link.href = canvas.toDataURL("image/png");
+
+      link.click();
+
+    } catch (error) {
+
+      console.error("Erreur export image :", error);
+
+    }
+
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto">
@@ -389,6 +431,22 @@ const PosterGenerator = () => {
             Recherchez dans TMDB ou uploadez vos images pour créer des posters A4
           </p>
 
+        </div>
+
+        <div className="mb-4">
+          <label className="text-sm font-medium">Badge :</label>
+          <select
+            value={selectedTemplate}
+            onChange={(e) => setSelectedTemplate(e.target.value)}
+            className="w-full px-3 py-2 border rounded-lg"
+          >
+            <option value="none">Aucun badge</option>
+            <option value="film">Film</option>
+            <option value="serie">Série</option>
+            <option value="nouveaute">Nouveauté</option>
+            <option value="vostfr">VOSTFR</option>
+            <option value="drama">Drama</option>
+          </select>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 my-6">
@@ -478,6 +536,74 @@ const PosterGenerator = () => {
             {/* Simulation du papier A4 */}
             <div className="flex justify-center">
               <div
+                style={{
+                  position: "fixed",
+                  top: "-10000px",
+                  left: "-10000px",
+                  opacity: 1,
+                  pointerEvents: "none"
+                }}
+              >
+                    <div
+                    ref={exportRef}
+                    style={{
+                        width: "1080px",
+                        height: "1350px",
+                        display: "grid",
+                        gridTemplateColumns: `repeat(${columns}, 1fr)`,
+                        gap: "20px",
+                        padding: "20px",
+                        background: "white"
+                    }}
+                    >
+                    {selectedPosters.map((poster) => (
+                        <PosterTemplate
+                        key={poster.id}
+                        poster={poster.source === "tmdb" ? poster.poster_path : poster.url}
+                        template={selectedTemplate}
+                        watermark={true}
+                        boutiqueName={user?.boutique?.name}
+                        boutiqueLogo={user?.boutique?.logo_url}
+                        />
+                    ))}
+
+                  {selectedTemplate !== "standard" && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "40px",
+                        right: "-70px",
+                        width: "260px",
+                        height: "60px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transform: "rotate(45deg)",
+                        fontWeight: "bold",
+                        fontSize: "28px",
+                        color: "white",
+                        background:
+                          selectedTemplate === "vostfr"
+                            ? "#6b21a8"
+                            : selectedTemplate === "film"
+                            ? "#2563eb"
+                            : selectedTemplate === "serie"
+                            ? "#059669"
+                            : selectedTemplate === "drama"
+                            ? "#db2777"
+                            : "#ef4444",
+                        letterSpacing: "2px"
+                      }}
+                    >
+                      {selectedTemplate.toUpperCase()}
+                    </div>
+                  )}
+
+                </div>
+              </div>
+              
+              <div
+                ref={previewRef}
                 className={`border-2 border-gray-300 bg-white shadow-lg ${
                   orientation === 'portrait' 
                     ? 'w-64 h-80' // Ratio A4 portrait approximatif
@@ -507,8 +633,39 @@ const PosterGenerator = () => {
                         key={poster.id}
                         className="relative bg-gray-100 rounded overflow-hidden group"
                       >
+                        {selectedTemplate !== "standard" && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: "8px",
+                              right: "-40px",
+                              width: "120px",
+                              height: "28px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              transform: "rotate(45deg)",
+                              fontWeight: "bold",
+                              fontSize: "10px",
+                              color: "white",
+                              background:
+                                selectedTemplate === "vostfr"
+                                  ? "#6b21a8"
+                                  : selectedTemplate === "film"
+                                  ? "#2563eb"
+                                  : selectedTemplate === "serie"
+                                  ? "#059669"
+                                  : selectedTemplate === "drama"
+                                  ? "#db2777"
+                                  : "#ef4444",
+                            }}
+                          >
+                            {selectedTemplate.toUpperCase()}
+                          </div>
+                        )}
+
                         <img
-                          src={poster.source === 'tmdb' ? poster.poster_path : poster.url}
+                          src={getPosterUrl(poster)}
                           alt={poster.title}
                           className="w-full h-full object-cover"
                         />
@@ -587,7 +744,7 @@ const PosterGenerator = () => {
 
 
             {/* Boutons d'action principaux */}
-            <div className="flex flex-wrap items-center gap-2 mt-4">
+            <div className="flex flex-col gap-2 mt-4">
               <button
                 onClick={generatePDF}
                 disabled={selectedPosters.length === 0}
@@ -595,6 +752,15 @@ const PosterGenerator = () => {
               >
                 <Download className="w-5 h-5" />
                 <span>Télécharger PDF</span>
+              </button>
+
+              <button
+                onClick={exportImage}
+                disabled={selectedPosters.length === 0}
+                className="flex-1 min-w-[150px] bg-purple-600 text-black py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50 flex items-center justify-center space-x-2"
+              >
+                <FileImage className="w-5 h-5" />
+                <span>Télécharger Image</span>
               </button>
 
               <button
