@@ -3,6 +3,7 @@ import { FileImage, Plus, X, Download, RotateCcw } from "lucide-react";
 import PosterTemplate from "../../PosterTemplate";
 
 const PosterPreview = ({
+  
   user,
   selectedPosters,
   orientation,
@@ -25,6 +26,8 @@ const PosterPreview = ({
     columns === 3 ? 0.18 :
     columns === 4 ? 0.14 :
     0.10;
+
+  const badgeConfig = user?.boutique?.badge_config || {};
 
   return (
     <div className="lg:col-span-1 bg-white rounded-lg shadow-lg p-6">
@@ -71,6 +74,7 @@ const PosterPreview = ({
               watermark={showWatermark}
               boutiqueName={user?.boutique?.name}
               boutiqueLogo={user?.boutique?.logo_url}
+              badgeConfig={badgeConfig}
             />
           ))}
 
@@ -136,6 +140,7 @@ const PosterPreview = ({
                     watermark={showWatermark}
                     boutiqueName={user?.boutique?.name}
                     boutiqueLogo={user?.boutique?.logo_url}
+                    badgeConfig={badgeConfig}
                   />
                   </div>
 

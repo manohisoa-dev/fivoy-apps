@@ -1,27 +1,20 @@
-const PosterTemplate = ({ poster, template, watermark = false, boutiqueName, boutiqueLogo }) => {
+const PosterTemplate = ({
+  poster,
+  template,
+  watermark = false,
+  boutiqueName,
+  boutiqueLogo,
+  badgeConfig = {}
+}) => {
 
-  const ribbonText = {
-    film: "FILM",
-    serie: "SÉRIE",
-    nouveaute: "NOUVEAUTÉ",
-    vostfr: "VOSTFR",
-    drama: "DRAMA",
-    cartoon: "CARTOON",
-    manga: "MANGA"
-  };
+  const config =
+    typeof badgeConfig === "string"
+      ? JSON.parse(badgeConfig)
+      : badgeConfig;
 
-  const badgeColors = {
-    film: "#3b82f6",
-    serie: "#10b981",
-    nouveaute: "#ef4444",
-    vostfr: "#f59e0b",
-    drama: "#8b5cf6",
-    cartoon: "#06b6d4",
-    manga: "#ec4899"
-  }
+  const badge = config?.[template];
 
   return (
-
     <div className="relative w-[1080px] h-[1350px] bg-black rounded-[20px] overflow-hidden">
 
       <img
@@ -29,18 +22,17 @@ const PosterTemplate = ({ poster, template, watermark = false, boutiqueName, bou
         className="w-full h-full object-cover"
       />
 
-      {template && template !== "none" && (
+      {badge && (
         <div
-          className="absolute top-6 right-6 text-white px-4 py-8 rounded-md text-4xl font-bold"
+          className="absolute top-6 right-6 text-white px-4 py-6 rounded-md text-4xl font-bold"
           style={{
-            backgroundColor: badgeColors[template] || "#ef4444",
+            backgroundColor: badge.color,
             zIndex: 20
           }}
         >
-          {ribbonText[template]}
+          {badge.label}
         </div>
       )}
-      
 
       {watermark && (
         <>
@@ -65,9 +57,7 @@ const PosterTemplate = ({ poster, template, watermark = false, boutiqueName, bou
       )}
 
     </div>
-
   );
-
 };
 
 export default PosterTemplate;

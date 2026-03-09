@@ -28,10 +28,6 @@ const DashboardPage = () => {
 
   const { user, loading: authLoading } = useContext(AuthContext);
 
-  console.log("authLoading:", authLoading);
-  console.log("user:", user);
-
-
   // Simulation de données (remplacez par vos appels Supabase réels)
   useEffect(() => {
     if (user && !authLoading) {
@@ -40,7 +36,6 @@ const DashboardPage = () => {
   }, [user, authLoading]);
 
   const loadData = async () => {
-    console.log("loadData called");
     try {
       setLoading(true);
 

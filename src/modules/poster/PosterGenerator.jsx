@@ -19,6 +19,11 @@ const PosterGenerator = () => {
 
   const poster = usePosterGenerator(user);
 
+  const badgeConfig =
+  typeof user?.boutique?.badge_config === "string"
+    ? JSON.parse(user?.boutique?.badge_config)
+    : user?.boutique?.badge_config || {};
+
   const {
     searchQuery,
     setSearchQuery,
@@ -427,13 +432,12 @@ const PosterGenerator = () => {
             className="w-full px-3 py-2 border rounded-lg"
           >
             <option value="none">Aucun badge</option>
-            <option value="film">Film</option>
-            <option value="serie">Série</option>
-            <option value="nouveaute">Nouveauté</option>
-            <option value="vostfr">VOSTFR</option>
-            <option value="drama">Drama</option>
-            <option value="cartoon">Cartoon</option>
-            <option value="manga">Manga</option>
+
+            {Object.entries(badgeConfig).map(([key, badge]) => (
+              <option key={key} value={key}>
+                {badge.label}
+              </option>
+            ))}
           </select>
 
           <div className="flex items-center gap-2 mt-2">
@@ -464,6 +468,7 @@ const PosterGenerator = () => {
           {/* Colonne centrale - Prévisualisation A4 */}
           <PosterPreview
             user={user}
+            badgeConfig={badgeConfig}
             selectedPosters={selectedPosters}
             orientation={orientation}
             setOrientation={setOrientation}
