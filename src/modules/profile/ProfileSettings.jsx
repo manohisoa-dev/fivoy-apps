@@ -297,13 +297,16 @@ const ProfileSettings = () => {
 
           {/* Gestion des badges */}
           <div className="mt-6">
-            <h3 className="text-md font-semibold mb-3">Badges Posters</h3>
 
-            <div className="space-y-3">
+            <h3 className="text-md font-semibold mb-3">
+              Badges Posters
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
               {Object.entries(badgeConfig).map(([key, badge]) => (
 
-                <div key={key} className="flex items-center gap-4">
+                <div key={key} className="flex items-center gap-3 bg-gray-50 p-2 rounded">
 
                   <input
                     type="text"
@@ -317,7 +320,7 @@ const ProfileSettings = () => {
                         }
                       })
                     }
-                    className="border px-3 py-2 rounded w-40"
+                    className="border px-2 py-1 rounded w-32"
                   />
 
                   <input
@@ -332,18 +335,47 @@ const ProfileSettings = () => {
                         }
                       })
                     }
-                    className="w-12 h-10 border rounded cursor-pointer"
+                    className="w-10 h-8 border rounded cursor-pointer"
                   />
 
-                  <span className="text-sm text-gray-500">
-                    {key}
-                  </span>
+                  <button
+                    onClick={() => {
+                      const updated = { ...badgeConfig };
+                      delete updated[key];
+                      setBadgeConfig(updated);
+                    }}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    ✕
+                  </button>
 
                 </div>
 
               ))}
 
             </div>
+
+            <div className="mt-4">
+              <button
+                onClick={() => {
+
+                  const newKey = "badge_" + Date.now();
+
+                  setBadgeConfig({
+                    ...badgeConfig,
+                    [newKey]: {
+                      label: "NOUVEAU",
+                      color: "#6b7280"
+                    }
+                  });
+
+                }}
+                className="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm"
+              >
+                + Ajouter un badge
+              </button>
+            </div>
+
           </div>
           <br />
 
