@@ -15,6 +15,44 @@ const PosterSearch = ({
 
   const [selectedLanguage, setSelectedLanguage] = useState("fr-FR");
 
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [debounceTimer, setDebounceTimer] = useState(null);
+
+  const fetchSuggestions = async (query) => {
+
+    if (!query.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+
+      const response = await api.get("/tmdb/search", {
+        params: {
+          query,
+          language: selectedLanguage
+        }
+      });
+
+      const results = response.data.results
+        ?.slice(0, 6)
+        .map(item => ({
+          id: item.id,
+          title: item.title || item.name,
+          poster: item.poster_path
+            ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
+            : null
+        })) || [];
+
+      setSuggestions(results);
+      setShowSuggestions(true);
+
+    } catch (err) {
+      console.error("Erreur suggestions:", err);
+    }
+  };
+
   const searchTMDB = async (query) => {
 
     if (!query.trim()) return;
@@ -83,9 +121,59 @@ const PosterSearch = ({
           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
           placeholder="Rechercher films, séries, manga..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+
+            const value = e.target.value;
+            setSearchQuery(value);
+
+            if (debounceTimer) clearTimeout(debounceTimer);
+
+            const timer = setTimeout(() => {
+              fetchSuggestions(value);
+            }, 400);
+
+            setDebounceTimer(timer);
+
+          }}
           onKeyPress={(e) => e.key === "Enter" && searchTMDB(searchQuery)}
         />
+
+        {showSuggestions && suggestions.length > 0 && (
+
+          <div className="border rounded-lg mt-1 bg-white shadow max-h-60 overflow-y-auto">
+
+            {suggestions.map((item) => (
+
+              <div
+                key={item.id}
+                className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => {
+
+                  setSearchQuery(item.title);
+                  setShowSuggestions(false);
+                  searchTMDB(item.title);
+
+                }}
+              >
+
+                {item.poster && (
+                  <img
+                    src={item.poster}
+                    className="w-8 h-12 object-cover rounded"
+                  />
+                )}
+
+                <span className="text-sm">
+                  {item.title}
+                </span>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        )}
 
         <button
           onClick={() => searchTMDB(searchQuery)}

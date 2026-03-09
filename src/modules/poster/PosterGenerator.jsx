@@ -18,6 +18,10 @@ const PosterGenerator = () => {
   const { user } = useContext(AuthContext);
 
   const poster = usePosterGenerator(user);
+  
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [debounceTimer, setDebounceTimer] = useState(null);
 
   const badgeConfig =
   typeof user?.boutique?.badge_config === "string"
