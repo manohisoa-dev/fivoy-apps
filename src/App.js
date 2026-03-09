@@ -18,6 +18,8 @@ import { Toaster } from "react-hot-toast";
 import PricingPage from "./pages/PricingPage";
 import POSPage from "./modules/pos/POSPage";
 
+import CreditNotesPage from "./modules/credits/CreditNotesPage";
+
 function App() {
   return (
     <AuthProvider>
@@ -44,6 +46,7 @@ function App() {
               <Route path="/products" element={<ProductsPage />} />
 
               <Route path="/pos" element={<POSPage />} />
+              <Route path="/credits" element={<CreditNotesPage />} />
             </Route>
           </Route>
 
