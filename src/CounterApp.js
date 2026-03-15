@@ -9,6 +9,11 @@ import { useLoadingStore } from './store/loading';
 
 const FivoyCounterApp = () => {
   const { withLoading } = useLoadingStore.getState();
+
+  const [timerEndTime, setTimerEndTime] = useState(null);
+  const [moneyEndTime, setMoneyEndTime] = useState(null);
+
+  const [pricePerMinute, setPricePerMinute] = useState(33.33);
   
   // États pour l'heure actuelle
   const [currentTime, setCurrentTime] = useState('');
@@ -53,13 +58,37 @@ const FivoyCounterApp = () => {
 
 
   // Configuration des prix
-  const PRICE_PER_MINUTE = 33.33; // 33,33 Ar par minute de connexion
-  const MONEY_DECREMENT = 3.33; // 3,33 Ar toutes les 6 secondes
+  const MONEY_INTERVAL = 6000; // ms
+  const PRICE_PER_MINUTE = pricePerMinute;
+  const MONEY_DECREMENT = pricePerMinute / (60000 / MONEY_INTERVAL);
 
   const [calculatedAmount, setCalculatedAmount] = useState(0);
   const [connectionMinutes, setConnectionMinutes] = useState(0);
 
   const [autoSaved, setAutoSaved] = useState(false);
+
+  useEffect(() => {
+    const loadInternetPrice = async () => {
+      try {
+        const res = await api.get("/products");
+
+        const products = res.data.data || res.data;
+
+        const internetProduct = products.find(
+          (p) => p.name.toLowerCase().includes("connexion internet")
+        );
+
+        if (internetProduct) {
+          setPricePerMinute(parseFloat(internetProduct.price));
+        }
+
+      } catch (err) {
+        console.error("Erreur chargement prix internet", err);
+      }
+    };
+
+    loadInternetPrice();
+  }, []);
 
   // Mise à jour de l'heure actuelle
   useEffect(() => {
@@ -139,6 +168,26 @@ const FivoyCounterApp = () => {
         {
           custom_name: "Connexion Internet",
           custom_price: totalAmount,
+          quantity: 1
+        }
+      ]
+    };
+
+    await createSale(saleData);
+  };
+
+  const autoSaveMoneySale = async (amountUsed) => {
+    const minutes = amountUsed / PRICE_PER_MINUTE;
+
+    const saleData = {
+      date: new Date().toISOString().slice(0, 10),
+      client: null,
+      modePaiement: "Espèces",
+      notes: `Connexion internet - ${Math.round(minutes)} minutes (Décompte argent)`,
+      items: [
+        {
+          custom_name: "Connexion Internet",
+          custom_price: amountUsed,
           quantity: 1
         }
       ]
@@ -230,6 +279,16 @@ const FivoyCounterApp = () => {
     }
 
     initialSecondsRef.current = minutes * 60;
+
+    // Calcul de l'heure de fin
+    const endTime = new Date(Date.now() + minutes * 60000);
+
+    const formattedEndTime =
+      String(endTime.getHours()).padStart(2, "0") +
+      ":" +
+      String(endTime.getMinutes()).padStart(2, "0");
+
+    setTimerEndTime(formattedEndTime);
     
     if (!timerPaused) {
       targetTimeRef.current = Date.now() + initialSecondsRef.current * 1000;
@@ -250,6 +309,8 @@ const FivoyCounterApp = () => {
         setTimerPaused(false);
 
         playBeepSound();
+
+        setTimerEndTime(null);
 
         try {
           if (!autoSaved) {
@@ -367,27 +428,61 @@ const FivoyCounterApp = () => {
   // Gestionnaire pour le money timer
   const startMoneyTimer = () => {
     const amount = parseInt(moneyAmount);
+
+    if (moneyTimerRef.current) {
+      clearInterval(moneyTimerRef.current);
+    }
+
     if (isNaN(amount) || amount <= 0) {
       alert('Veuillez entrer un montant valide.');
       return;
     }
 
+    // IMPORTANT : initialiser le montant restant
     remainingAmountRef.current = amount;
+
+    // calcul du temps restant basé sur le prix minute
+    const minutes = amount / PRICE_PER_MINUTE;
+    const endTime = new Date(Date.now() + minutes * 60000);
+
+    const formattedEnd =
+      String(endTime.getHours()).padStart(2, "0") +
+      ":" +
+      String(endTime.getMinutes()).padStart(2, "0");
+
+    setMoneyEndTime(formattedEnd);
+
     setMoneyDisplay(amount.toString());
     setMoneyTimerRunning(true);
     setMoneyTimerPaused(false);
 
-    moneyTimerRef.current = setInterval(() => {
+    moneyTimerRef.current = setInterval(async () => {
       if (!moneyTimerPaused && remainingAmountRef.current > 0) {
         remainingAmountRef.current -= MONEY_DECREMENT;
-        setMoneyDisplay(remainingAmountRef.current.toString());
+        setMoneyDisplay(Math.round(remainingAmountRef.current));
       } else if (remainingAmountRef.current <= 0) {
+        setMoneyEndTime(null);
+
         clearInterval(moneyTimerRef.current);
         setMoneyTimerRunning(false);
         setMoneyTimerPaused(false);
         
         // Jouer le son d'alerte
         playBeepSound();
+
+        try {
+          if (!autoSaved) {
+            setAutoSaved(true);
+
+            const amountUsed = parseInt(moneyAmount);
+
+            await withLoading(async () => {
+              await autoSaveMoneySale(amountUsed);
+            });
+          }
+        } catch (error) {
+          console.error("Erreur auto save:", error);
+        }
 
         // SweetAlert au lieu d'alert()
         if (window.Swal) {
@@ -406,8 +501,7 @@ const FivoyCounterApp = () => {
             audioRef.current.pause();
           audioRef.current.currentTime = 0;
           }
-        }
-        
+        }        
       }
     }, 6000); // 6 secondes
   };
@@ -621,6 +715,11 @@ const FivoyCounterApp = () => {
                   <StepForward className="w-4 h-4" />
                 </button>
               </div>
+              {timerEndTime && (
+                <div className="text-sm text-gray-500 mt-1">
+                  Fin prévue : <span className="font-semibold">{timerEndTime}</span>
+                </div>
+              )}
             </div>
 
             {/* Money Timer */}
@@ -665,6 +764,12 @@ const FivoyCounterApp = () => {
                   <StepForward className="w-4 h-4" />
                 </button>
               </div>
+
+              {moneyEndTime && (
+                <div className="text-sm text-gray-500 mt-1">
+                  Fin prévue : <span className="font-semibold">{moneyEndTime}</span>
+                </div>
+              )}
             </div>
 
             {/* Générateur WiFi */}
