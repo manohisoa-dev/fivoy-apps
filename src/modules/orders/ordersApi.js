@@ -1,33 +1,55 @@
+import api from "../../api/api";
 
-export async function listOrders({ q = '', status = '', category = '', limit = 50, offset = 0 } = {}) {
-  let query = supabase.from('orders').select('*', { count: 'exact' }).order('created_at', { ascending: false });
+export async function listOrders({
+  q = "",
+  status = "",
+  category = "",
+  limit = 50,
+  offset = 0,
+} = {}) {
 
-  if (status)   query = query.eq('status', status);
-  if (category) query = query.eq('category', category);
-  if (q) {
-    // filtre simple sur title + customer_name
-    query = query.or(`title.ilike.%${q}%,customer_name.ilike.%${q}%`);
+  const res = await api.get("/orders");
+
+  let rows = res.data;
+
+  if (status) {
+    rows = rows.filter((r) => r.status === status);
   }
 
-  const { data, error, count } = await query.range(offset, offset + limit - 1);
-  if (error) throw error;
-  return { data, count };
+  if (category) {
+    rows = rows.filter((r) => r.category === category);
+  }
+
+  if (q) {
+    const search = q.toLowerCase();
+    rows = rows.filter(
+      (r) =>
+        r.title?.toLowerCase().includes(search) ||
+        r.customer_name?.toLowerCase().includes(search)
+    );
+  }
+
+  const count = rows.length;
+
+  const paginated = rows.slice(offset, offset + limit);
+
+  return {
+    data: paginated,
+    count,
+  };
 }
 
 export async function createOrder(payload) {
-  const { data, error } = await supabase.from('orders').insert(payload).select().single();
-  if (error) throw error;
-  return data;
+  const res = await api.post("/orders", payload);
+  return res.data;
 }
 
 export async function updateOrderStatus(id, status) {
-  const { data, error } = await supabase.from('orders').update({ status }).eq('id', id).select().single();
-  if (error) throw error;
-  return data;
+  const res = await api.put(`/orders/${id}`, { status });
+  return res.data;
 }
 
 export async function deleteOrder(id) {
-  const { error } = await supabase.from('orders').delete().eq('id', id);
-  if (error) throw error;
+  await api.delete(`/orders/${id}`);
   return true;
 }

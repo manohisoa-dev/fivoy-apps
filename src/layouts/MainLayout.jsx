@@ -1,7 +1,7 @@
 import { Outlet, Link } from "react-router-dom";
 import { useState, useContext, useRef, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { PrinterCheck, Clock, ShoppingCart,History , DollarSign, BarChart3, LogOut, ReceiptText } from "lucide-react";
+import { PrinterCheck, Clock, ShoppingCart,History , DollarSign, BarChart3, LogOut, ReceiptText, ClipboardList } from "lucide-react";
 import { User, Building2, ChevronDown } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import LoadingOverlay from "../components/LoadingOverlay";
@@ -144,8 +144,12 @@ const MainLayout = () => {
                 <ShoppingCart  size={16} /> Caisse
               </Link>
 
+              <Link to="/orders" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
+                <ClipboardList size={16} /> Commandes
+              </Link>
+
               <Link to="/sales-history" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
-                <History size={16} /> Historique de Ventes
+                <History size={16} /> Ventes
               </Link>
 
               <Link to="/expenses" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
@@ -153,7 +157,7 @@ const MainLayout = () => {
               </Link>
 
               <Link to="/credits" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
-                <ReceiptText  size={16} /> Avoir / Créances
+                <ReceiptText  size={16} /> Créances
               </Link>
 
               <Link to="/posters" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">

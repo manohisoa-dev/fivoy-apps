@@ -18,6 +18,8 @@ import { Toaster } from "react-hot-toast";
 import PricingPage from "./pages/PricingPage";
 import POSPage from "./modules/pos/POSPage";
 
+import Orders from "./modules/orders/Orders";
+
 import CreditNotesPage from "./modules/credits/CreditNotesPage";
 
 function App() {
@@ -44,7 +46,7 @@ function App() {
               <Route path="/profile" element={<ProfileSettings />} />
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/products" element={<ProductsPage />} />
-
+              <Route path="/orders" element={<Orders />} />
               <Route path="/pos" element={<POSPage />} />
               <Route path="/credits" element={<CreditNotesPage />} />
             </Route>
