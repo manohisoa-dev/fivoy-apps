@@ -634,6 +634,13 @@ const FivoyCounterApp = () => {
                     setStartMinute(e.target.value);
                     // calculateConnectionAmount();
                 }}
+
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    calculateConnectionAmount();
+                  }
+                }}
+
                 onBlur={(e) => {
                   if (startMinute !== '' && Number(startMinute) >= 0 && Number(startMinute) <= 59 && e.target.value.length >= 2) {
                     calculateConnectionAmount();
