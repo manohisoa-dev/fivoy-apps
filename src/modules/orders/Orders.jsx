@@ -2,6 +2,8 @@ import { useOrders } from './useOrders';
 import OrderForm from './OrderForm';
 import OrdersList from './OrdersList';
 import { useLoadingStore } from '../../store/loading';
+import Swal from "sweetalert2";
+
 
 export default function Orders() {
   const {
@@ -55,9 +57,28 @@ export default function Orders() {
           onPageSize={setPageSize}
           onStatus={changeStatus}
           onDelete={async (id)=>{
-            const ok = window.confirm('Supprimer cette commande ?');
-            if (!ok) return;
+
+            const confirm = await Swal.fire({
+              title: "Supprimer cette commande ?",
+              text: "Cette action est irréversible.",
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonText: "Oui, supprimer",
+              cancelButtonText: "Annuler",
+              confirmButtonColor: "#dc2626"
+            });
+
+            if (!confirm.isConfirmed) return;
+
             await remove(id);
+
+            Swal.fire({
+              icon: "success",
+              title: "Commande supprimée",
+              timer: 1200,
+              showConfirmButton: false
+            });
+
           }}
         />
         {loading && <div className="mt-2 text-sm text-gray-500">Chargement…</div>}

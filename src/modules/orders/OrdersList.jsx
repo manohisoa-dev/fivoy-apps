@@ -46,7 +46,9 @@ export default function OrdersList({ rows, page, pageSize, total, onPage, onPage
                   </div>
                 </td>
                 <td className={colCell}>{row.category}</td>
-                <td className={colCell}>{row.customer_name}</td>
+                <td className={colCell}>
+                  {row.customer_name || "Anonyme"}
+                </td>
                 <td className={colCell}>
                   <div className="flex items-center gap-2">
                     <StatusBadge value={row.status}/>
