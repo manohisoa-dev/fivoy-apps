@@ -36,7 +36,6 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
             
           <Route element={<AuthLayout />}>
-
             {/* Layout normal */}
             <Route element={<MainLayout />}>
               <Route path="/" element={<CounterApp />} />
