@@ -22,6 +22,8 @@ import Orders from "./modules/orders/Orders";
 
 import CreditNotesPage from "./modules/credits/CreditNotesPage";
 
+import ClientsPage from "./modules/clients/ClientsPage";
+
 function App() {
   return (
     <AuthProvider>
@@ -49,6 +51,7 @@ function App() {
               <Route path="/orders" element={<Orders />} />
               <Route path="/pos" element={<POSPage />} />
               <Route path="/credits" element={<CreditNotesPage />} />
+              <Route path="/clients" element={<ClientsPage />} />
             </Route>
           </Route>
 
