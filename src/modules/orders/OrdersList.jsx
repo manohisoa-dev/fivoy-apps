@@ -62,10 +62,15 @@ export default function OrdersList({ rows, page, pageSize, total, onPage, onPage
                         {row.client.first_name}
                       </div>
 
-                      {row.client.phone && (
+                      {/* Téléphone OU badge */}
+                      {row.client.phone ? (
                         <div className="text-xs text-gray-500">
                           {formatPhone(row.client.phone)}
                         </div>
+                      ) : (
+                        <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded w-fit">
+                          ⚠️ numéro manquant <br />
+                        </span>
                       )}
 
                       <span className="text-green-600 text-xs">Client enregistré</span>
