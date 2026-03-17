@@ -161,7 +161,7 @@ const MainLayout = () => {
               </Link>
 
               <Link to="/clients">
-                👥 Clients
+                <User  size={16} /> Clients
               </Link>
 
               <Link to="/posters" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
