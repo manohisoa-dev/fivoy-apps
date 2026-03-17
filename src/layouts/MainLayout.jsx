@@ -54,6 +54,10 @@ const MainLayout = () => {
     setOpen(false);
   }, [location.pathname]);
 
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
   {/* FIN UX Dropdown : click outside non géré*/}
 
   {/* Gestion des coulurs dynamique selon les chart du boutique client */}
@@ -98,13 +102,94 @@ const MainLayout = () => {
     window.location.href = "/login";
   };
 
+  const menus = [
+    {
+      label: "Opérations",
+      items: [
+        { to: "/pos", label: "Caisse", icon: ShoppingCart },
+        { to: "/orders", label: "Commandes", icon: ClipboardList },
+        { to: "/", label: "Compteur", icon: Clock },
+      ]
+    },
+    {
+      label: "Finances",
+      items: [
+        { to: "/sales-history", label: "Ventes", icon: History },
+        { to: "/expenses", label: "Dépenses", icon: DollarSign },
+        { to: "/credits", label: "Avoir - Créances", icon: ReceiptText },
+      ]
+    },
+    {
+      label: "Clients & contenu",
+      items: [
+        { to: "/clients", label: "Clients", icon: User },
+        { to: "/posters", label: "Posters", icon: PrinterCheck },
+      ]
+    },
+    {
+      label: "Analyse",
+      items: [
+        { to: "/dashboard", label: "Dashboard", icon: BarChart3 },
+      ]
+    }
+  ];
+
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
   <>
     <LoadingOverlay />
     <div>
       {/* Navbar */}
-      <div className="bg-gray-800 text-white p-4">
+      <div className="bg-gray-800 text-white p-4 relative">
+        {mobileOpen && (
+          <div className="md:hidden absolute top-16 left-0 w-full bg-white text-gray-800 shadow-lg z-50">
+
+            {menus.map((menu, i) => (
+              <div key={i} className="border-b">
+
+                <div className="px-4 py-2 font-semibold">
+                  {menu.label}
+                </div>
+
+                {menu.items.map((item, j) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <Link
+                      key={j}
+                      to={item.to}
+                      onClick={()=>setMobileOpen(false)}
+                      className="flex items-center gap-2 px-6 py-2 hover:bg-gray-100"
+                    >
+                      <Icon size={16} />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+
+              </div>
+            ))}
+
+          </div>
+        )}
+
+        
         <div className={isPOS ? "flex justify-between items-center px-0" : "max-w-7xl mx-auto flex justify-between items-center"}>
+          {mobileOpen ? (
+            <button
+              onClick={() => setMobileOpen(false)}
+            >
+              ✕
+            </button>
+          ) : (
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="md:hidden"
+            >
+            ☰
+          </button>
+          )}
           
           {/* Logo */}
           <div className="flex items-center gap-3">
@@ -134,43 +219,38 @@ const MainLayout = () => {
           {/* Navigation */}
           <div className="flex items-center gap-8">
 
-            <nav className="flex gap-4">
+            <nav className="hidden md:flex items-center gap-4">
 
-              <Link to="/" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
-                <Clock size={16} /> Compteur
-              </Link>
+              {menus.map((menu, i) => (
+                <div key={i} className="relative group">
 
-              <Link to="/pos" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
-                <ShoppingCart  size={16} /> Caisse
-              </Link>
+                  <button className="flex items-center gap-1 hover-text-primary">
+                    {menu.label}
+                    <ChevronDown size={14} />
+                  </button>
 
-              <Link to="/orders" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
-                <ClipboardList size={16} /> Commandes
-              </Link>
+                  <div className="absolute top-full left-0 mt-2 w-56 bg-white text-gray-700 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
 
-              <Link to="/sales-history" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
-                <History size={16} /> Ventes
-              </Link>
+                    {menu.items.map((item, j) => {
+                      const Icon = item.icon;
+                      const isActive = location.pathname === item.to;
 
-              <Link to="/expenses" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
-                <DollarSign size={16} /> Dépenses
-              </Link>
+                      return (
+                        <Link
+                          key={j}
+                          to={item.to}
+                          className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100"
+                        >
+                          <Icon size={16} />
+                          {item.label}
+                        </Link>
+                      );
+                    })}
 
-              <Link to="/credits" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
-                <ReceiptText  size={16} /> Créances
-              </Link>
+                  </div>
+                </div>
+              ))}
 
-              <Link to="/clients">
-                <User  size={16} /> Clients
-              </Link>
-
-              <Link to="/posters" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
-                <PrinterCheck size={16} /> Posters PDF
-              </Link>
-
-              <Link to="/dashboard" className="hover-text-primary transition-colors duration-200 flex items-center gap-1">
-                <BarChart3 size={16} /> Dashboard
-              </Link>
             </nav>
 
             {/* User section */}
@@ -214,7 +294,7 @@ const MainLayout = () => {
                     </div>
 
                     <button
-                        onClick={logout}
+                        onClick={handleLogout}
                         className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-2 text-red-600"
                     >
                         <LogOut size={16} />
