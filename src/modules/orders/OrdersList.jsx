@@ -1,4 +1,7 @@
 import { useMemo } from 'react';
+import { updateClientPhone } from "../clients/clientsApi";
+import { useState } from 'react';
+import Swal from "sweetalert2";
 
 const STATUS = ['En attente','En cours','Terminé'];
 
@@ -11,12 +14,14 @@ function StatusBadge({ value }) {
   return <span className={`px-2 py-1 rounded-xl text-xs font-medium ${cls}`}>{value}</span>;
 }
 
-export default function OrdersList({ rows, page, pageSize, total, onPage, onPageSize, onStatus, onDelete }) {
+export default function OrdersList({ rows, page, pageSize, total, onPage, onPageSize, onStatus, onDelete, onUpdateClientPhone }) {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const colHead = 'px-3 py-2 text-left text-sm font-semibold text-gray-700';
   const colCell = 'px-3 py-2 text-sm';
 
   const empty = useMemo(() => !rows || rows.length === 0, [rows]);
+
+  const isValidPhone = (phone) => /^0\d{9}$/.test(phone);
 
   const formatPhone = (phone) => {
     if (!phone) return "";
@@ -24,6 +29,72 @@ export default function OrdersList({ rows, page, pageSize, total, onPage, onPage
     return phone
         .replace(/\D/g, "")
         .replace(/(\d{3})(\d{2})(\d{3})(\d{2})/, "$1 $2 $3 $4");
+  };
+
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [phoneModalOpen, setPhoneModalOpen] = useState(false);
+  const [phone, setPhone] = useState("");
+
+  const openPhoneModal = (client) => {
+    setSelectedClient(client);
+    setPhone(client.phone || "");
+    setPhoneModalOpen(true);
+  };
+
+ const handleSavePhone = async () => {
+
+    if (!phone) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Numéro requis",
+        text: "Veuillez saisir un numéro"
+      });
+      return;
+    }
+
+    if (!isValidPhone(phone)) {
+      await Swal.fire({
+        icon: "error",
+        title: "Numéro invalide",
+        text: "Format attendu : 0341234567"
+      });
+      return;
+    }
+
+    try {
+
+      await updateClientPhone(selectedClient.id, phone);
+
+      // 🔥 update UI local
+      setSelectedClient(prev => ({
+        ...prev,
+        phone
+      }));
+
+      setPhoneModalOpen(false);
+
+      // ✅ TOAST SUCCESS
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "success",
+        title: "Numéro ajouté",
+        showConfirmButton: false,
+        timer: 1200
+      });
+
+      onUpdateClientPhone(selectedClient.id, phone);
+
+    } catch (e) {
+
+      console.error(e);
+
+      await Swal.fire({
+        icon: "error",
+        title: "Erreur",
+        text: "Impossible de mettre à jour"
+      });
+    }
   };
 
   return (
@@ -68,11 +139,13 @@ export default function OrdersList({ rows, page, pageSize, total, onPage, onPage
                           {formatPhone(row.client.phone)}
                         </div>
                       ) : (
-                        <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded w-fit">
-                          ⚠️ numéro manquant <br />
-                        </span>
+                        <button
+                          onClick={() => openPhoneModal(row.client)}
+                          className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded w-fit hover:bg-yellow-200"
+                        >
+                          ⚠️ numéro manquant
+                        </button>
                       )}
-
                       <span className="text-green-600 text-xs">Client enregistré</span>
                     </div>
                   ) : (
@@ -135,6 +208,47 @@ export default function OrdersList({ rows, page, pageSize, total, onPage, onPage
           </button>
         </div>
       </div>
+
+      {phoneModalOpen && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+          <div className="bg-white rounded-xl p-5 w-80 space-y-3">
+
+            <h2 className="text-lg font-semibold">
+              Ajouter numéro
+            </h2>
+
+            <input
+              value={phone}
+              onChange={(e) => {
+                let value = e.target.value.replace(/\D/g, "").slice(0,10);
+                setPhone(value);
+              }}
+              placeholder="Ex: 0341234567"
+              className="w-full border px-3 py-2 rounded"
+            />
+
+            <div className="flex justify-end gap-2">
+
+              <button
+                onClick={() => setPhoneModalOpen(false)}
+                className="px-3 py-1 text-gray-600"
+              >
+                Annuler
+              </button>
+
+              <button
+                onClick={handleSavePhone}
+                className="bg-blue-600 text-white px-3 py-1 rounded"
+              >
+                Enregistrer
+              </button>
+
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }

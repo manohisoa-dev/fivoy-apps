@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 export default function Orders() {
   const {
     rows, total, q, setQ, status, setStatus, category, setCategory,
-    page, setPage, pageSize, setPageSize, addOrder, changeStatus, remove
+    page, setPage, pageSize, setPageSize, addOrder, changeStatus, remove, updateClientPhoneLocal
   } = useOrders();
 
   const loading = useLoadingStore(s => s.count > 0);
@@ -80,6 +80,7 @@ export default function Orders() {
             });
 
           }}
+          onUpdateClientPhone={updateClientPhoneLocal}
         />
         {loading && <div className="mt-2 text-sm text-gray-500">Chargement…</div>}
       </div>

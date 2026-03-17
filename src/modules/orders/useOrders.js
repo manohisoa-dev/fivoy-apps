@@ -12,6 +12,16 @@ export function useOrders() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  const updateClientPhoneLocal = (clientId, phone) => {
+    setRows(prev =>
+      prev.map(r =>
+        r.client?.id === clientId
+          ? { ...r, client: { ...r.client, phone } }
+          : r
+      )
+    );
+  };
+
   async function load() {
     await withLoading(async () => {
       const { data, count } = await listOrders({
@@ -41,6 +51,7 @@ export function useOrders() {
     async remove(id) {
       await withLoading(async () => { await deleteOrder(id); });
       await load();
-    }
+    }, 
+    updateClientPhoneLocal 
   };
 }

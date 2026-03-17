@@ -22,6 +22,11 @@ export const searchClients = async (query) => {
   return res.data.data || res.data;
 };
 
+export const updateClientPhone = async (id, phone) => {
+  const res = await api.put(`/clients/${id}`, { phone });
+  return res.data;
+};
+
 export const createClient = (data) => api.post("/clients", data);
 export const updateClient = (id, data) => api.put(`/clients/${id}`, data);
 export const deleteClient = (id) => api.delete(`/clients/${id}`);
