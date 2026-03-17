@@ -18,6 +18,14 @@ export default function OrdersList({ rows, page, pageSize, total, onPage, onPage
 
   const empty = useMemo(() => !rows || rows.length === 0, [rows]);
 
+  const formatPhone = (phone) => {
+    if (!phone) return "";
+
+    return phone
+        .replace(/\D/g, "")
+        .replace(/(\d{3})(\d{2})(\d{3})(\d{2})/, "$1 $2 $3 $4");
+  };
+
   return (
     <div className="space-y-3">
       <div className="overflow-x-auto rounded-2xl border bg-white">
@@ -46,11 +54,35 @@ export default function OrdersList({ rows, page, pageSize, total, onPage, onPage
                   </div>
                 </td>
                 <td className={colCell}>{row.category}</td>
-                <td className={colCell}>
-                  {row.customer_name || "Anonyme"}
+                <td className="text-sm">
+
+                  {row.client ? (
+                    <div>
+                      <div className="font-medium">
+                        {row.client.first_name}
+                      </div>
+
+                      {row.client.phone && (
+                        <div className="text-xs text-gray-500">
+                          {formatPhone(row.client.phone)}
+                        </div>
+                      )}
+
+                      <span className="text-green-600 text-xs">Client enregistré</span>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="font-medium text-gray-900">
+                        {row.customer_name || "—"}
+                      </div>
+
+                      <span className="text-gray-400 text-xs">Client libre</span>
+                    </div>
+                  )}
+
                 </td>
                 <td className={colCell}>
-                  <div className="flex items-center gap-2">
+                  <div className="flex i  tems-center gap-2">
                     <StatusBadge value={row.status}/>
                     <select
                       className="rounded-xl border px-2 py-1 text-sm"

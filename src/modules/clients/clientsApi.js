@@ -15,6 +15,13 @@ export const fetchClients = async (search = "") => {
   return data;
 };
 
+export const searchClients = async (query) => {
+  const res = await api.get("/clients", {
+    params: { search: query }
+  });
+  return res.data.data || res.data;
+};
+
 export const createClient = (data) => api.post("/clients", data);
 export const updateClient = (id, data) => api.put(`/clients/${id}`, data);
 export const deleteClient = (id) => api.delete(`/clients/${id}`);

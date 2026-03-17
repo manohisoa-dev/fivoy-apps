@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import api from "../../api/api";
 import { useEffect } from "react";
+import ClientSearch from "../clients/ClientSearch";
 
 const CATEGORIES = ['Film', 'Drama', 'Série', 'DA', 'Documentaire', 'Novelas', 'Autre'];
 
@@ -10,7 +11,12 @@ export default function OrderForm({ onCreate }) {
   const [debounceTimer, setDebounceTimer] = useState(null);
 
   const [form, setForm] = useState({
-    title: '', customer_name: '', poster_url: '', download_link: '', category: 'Film'
+    title: '',
+    customer_name: '',
+    client_id: null,
+    poster_url: '',
+    download_link: '',
+    category: 'Film'
   });
 
   const canSave = form.title && form.category;
@@ -22,9 +28,10 @@ export default function OrderForm({ onCreate }) {
     if (!canSave) return;
     await onCreate({
       title: form.title.trim(),
-      customer_name: form.customer_name.trim() || null,
-      poster_url: form.poster_url.trim() || null,
-      download_link: form.download_link.trim() || null,
+      client_id: form.client_id,
+      customer_name: form.customer_name || null,
+      poster_url: form.poster_url || null,
+      download_link: form.download_link || null,
       category: form.category
     });
     setForm({ title:'', customer_name:'', poster_url:'', download_link:'', category:'Film' });
@@ -150,8 +157,18 @@ export default function OrderForm({ onCreate }) {
         </div>
         <div>
           <label className="text-sm text-gray-600">Client</label>
-          <input className="mt-1 w-full rounded-xl border px-3 py-2" value={form.customer_name}
-                 onChange={e=>onChange('customer_name', e.target.value)} placeholder="Nom du client"/>
+
+          <ClientSearch
+            value={form.customer_name}
+            onSelect={(client) => {
+              setForm(s => ({
+                ...s,
+                client_id: client.id,
+                customer_name: client.first_name
+              }));
+            }}
+          />
+
         </div>
         <div>
           <label className="text-sm text-gray-600">Poster URL</label>
