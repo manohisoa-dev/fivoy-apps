@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useRef } from "react";
 import api from "../../api/api";
 import { useEffect } from "react";
 import ClientSearch from "../clients/ClientSearch";
@@ -9,6 +10,7 @@ export default function OrderForm({ onCreate }) {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [debounceTimer, setDebounceTimer] = useState(null);
+  const suggestionRef = useRef(null);
 
   const [form, setForm] = useState({
     title: '',
@@ -54,6 +56,7 @@ export default function OrderForm({ onCreate }) {
 
     if (!query.trim()) {
       setSuggestions([]);
+      setShowSuggestions(false); // 🔥 OBLIGATOIRE
       return;
     }
 
@@ -79,12 +82,28 @@ export default function OrderForm({ onCreate }) {
     }
   };
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!suggestionRef.current) return;
+
+      if (!suggestionRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
   return (
     <form onSubmit={submit} className="space-y-3">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="text-sm text-gray-600">Titre</label>
-          <div className="relative">
+          <div className="relative" ref={suggestionRef}>
 
           <input
             className="mt-1 w-full rounded-xl border px-3 py-2"
@@ -107,49 +126,56 @@ export default function OrderForm({ onCreate }) {
             }}
           />
 
-          {showSuggestions && suggestions.length > 0 && (
+          {showSuggestions && (
 
-          <div className="absolute z-10 bg-white border rounded-lg mt-1 w-full shadow max-h-60 overflow-y-auto">
+            <div className="absolute z-10 bg-white border rounded-lg mt-1 w-full shadow max-h-60 overflow-y-auto">
 
-          {suggestions.map((item,i)=>(
+              {suggestions.length > 0 ? (
 
-          <div
-          key={i}
-          className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 cursor-pointer"
-          onClick={() => {
+                suggestions.map((item,i)=>(
 
-            const category = mapMediaTypeToCategory(item.media_type);
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
 
-            setForm(s => ({
-              ...s,
-                
-              poster_url: item.poster,
-              category
-            }));
+                      const category = mapMediaTypeToCategory(item.media_type);
 
-            setShowSuggestions(false);
+                      setForm(s => ({
+                        ...s,
+                        poster_url: item.poster,
+                        category
+                      }));
 
-          }}
-          >
+                      setShowSuggestions(false);
 
-          {item.poster && (
+                    }}
+                  >
 
-          <img
-            src={item.poster}
-            className="w-8 h-12 object-cover rounded"
-          />
+                    {item.poster && (
+                      <img
+                        src={item.poster}
+                        className="w-8 h-12 object-cover rounded"
+                      />
+                    )}
 
-          )}
+                    <span className="text-sm">
+                      {item.title}
+                    </span>
 
-          <span className="text-sm">
-          {item.title}
-          </span>
+                  </div>
 
-          </div>
+                ))
 
-          ))}
+              ) : (
 
-          </div>
+                <div className="px-3 py-2 text-sm text-gray-500 text-center">
+                  Aucun résultat trouvé
+                </div>
+
+              )}
+
+            </div>
 
           )}
 
