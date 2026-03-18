@@ -49,7 +49,7 @@ const PosterTemplate = ({
               transform: "rotate(-30deg)"
             }}
           >
-            <span className="text-white text-8xl opacity-5 font-bold">
+            <span className="text-white text-8xl opacity-35 font-bold">
               {boutiqueName?.toUpperCase()}
             </span>
           </div>
