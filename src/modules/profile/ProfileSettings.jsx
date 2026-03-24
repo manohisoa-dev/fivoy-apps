@@ -266,7 +266,7 @@ const ProfileSettings = () => {
             {/* Logo actuel si pas de preview */}
             {!preview && user?.boutique?.logo && (
               <img
-                src={`https://api.agnaro.io/storage/${user.boutique.logo}`}
+                src={`https://api.agnaro.io/api/logo/${user.boutique.logo}`}
                 alt="Logo actuel"
                 className="h-16 mt-3 rounded object-contain"
               />

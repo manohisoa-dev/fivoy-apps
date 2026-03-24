@@ -194,7 +194,10 @@ const MainLayout = () => {
           {/* Logo */}
           <div className="flex items-center gap-3">
             {user?.boutique?.logo ? (
-              <img src={user?.boutique?.logo_url} className="h-8 w-8 object-contain" alt="logo" />
+              <img 
+                src={`https://api.agnaro.io/api/logo/${user.boutique.logo}`}
+                className="h-8 w-8 object-contain" alt="logo" 
+              />
             ) : (
               <div className="h-8 w-8 bg-primary rounded flex items-center justify-center text-white">
                 {user?.boutique?.name?.charAt(0)}
