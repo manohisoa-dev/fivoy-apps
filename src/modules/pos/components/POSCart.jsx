@@ -8,7 +8,7 @@ export default function POSCart({
 
 const itemsCount = items.reduce((sum, i) => sum + i.quantity, 0);
   return (
-    <div className="w-[380px] flex flex-col h-full border-l bg-white relative">
+    <div className="w-full lg:w-[380px] flex flex-col border-t lg:border-l bg-white">
 
       {/* LISTE SCROLLABLE */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2 pb-40">
@@ -74,7 +74,7 @@ const itemsCount = items.reduce((sum, i) => sum + i.quantity, 0);
       </div>
 
       {/* BLOC TOTAL FIXE GLOBAL */}
-      <div className="fixed bottom-6 right-6 w-[380px] bg-slate-900 text-white p-5 border-t border-green-500 shadow-2xl rounded-lg">
+      <div className="sticky bottom-24 left-0 w-full bg-slate-900 text-white p-4 shadow-xl rounded-lg mx-2 mb-2">
         <div className="text-xs uppercase tracking-wide opacity-70">
         {itemsCount} article{itemsCount > 1 ? "s" : ""}
         </div>

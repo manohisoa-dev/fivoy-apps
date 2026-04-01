@@ -103,41 +103,41 @@ export default function POSPage() {
   if (loading) return <div className="p-6">Chargement...</div>;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] overflow-hidden">
+    <div className="flex flex-col min-h-screen lg:h-[calc(100vh-64px)]">
 
         {/* Bandeau Stats */}
         {stats && (
-        <div className="bg-gray-50 border-b px-6 py-2 flex justify-end gap-8 text-xs">
+        <div className="bg-gray-50 border-b px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs gap-3 text-xs">
             <button
               onClick={() => navigate("/products")}
-              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg"
+              className="flex items-center min-w-[70px] gap-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg"
             >
               <Settings className="w-4 h-4" />
               Gérer produits
             </button>
 
-            <div className="text-right">
+            <div className="min-w-[70px] text-right">
                 <div className="text-gray-400 uppercase tracking-wide">Ventes</div>
                 <div className="font-semibold text-green-600">
                 {Number(stats.sales_total).toLocaleString()} Ar
                 </div>
             </div>
 
-            <div className="text-right">
+            <div className="min-w-[70px] text-right">
                 <div className="text-gray-400 uppercase tracking-wide">Dépenses</div>
                 <div className="font-semibold text-red-500">
                 {Number(stats.expenses_total).toLocaleString()} Ar
                 </div>
             </div>
 
-            <div className="text-right">
+            <div className="min-w-[70px] text-right">
                 <div className="text-gray-400 uppercase tracking-wide">Solde</div>
                 <div className="font-semibold text-blue-600">
                 {Number(stats.theoretical_balance).toLocaleString()} Ar
                 </div>
             </div>
 
-            <div className="text-right">
+            <div className="min-w-[70px] text-right">
                 <div className="text-gray-400 uppercase tracking-wide">Tickets</div>
                 <div className="font-semibold">
                 {stats.tickets_count}
@@ -148,7 +148,7 @@ export default function POSPage() {
         )}
 
         {/* Zone POS */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
 
             <POSCatalog
                 categories={categories}

@@ -23,27 +23,28 @@ export default function POSCatalog({ categories, addToCart }) {
   };
 
   return (
-    <div className="flex flex-1">
+    <div className="flex flex-1 flex-col lg:flex-row">
 
       {/* CATEGORIES */}
-      <div className="w-52 border-r bg-gray-50 p-2 space-y-2">
+      <div className="w-full lg:w-64 border-r bg-gray-50 p-2 space-y-2 flex lg:block gap-2 overflow-x-auto">
         {categories.map(cat => (
           <div
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
-            className={`p-2 rounded cursor-pointer ${
+            className={`px-3 py-2 rounded cursor-pointer whitespace-normal break-words flex-shrink-0 ${
               activeCategory === cat.id
                 ? "bg-blue-600 text-white"
-                : "hover:bg-gray-200"
+                : "bg-white border hover:bg-gray-200"
             }`}
           >
             {cat.name}
           </div>
         ))}
       </div>
+      
 
       {/* PRODUCTS */}
-      <div className="flex-1 p-4 grid grid-cols-4 gap-3">
+      <div className="flex-1 p-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 overflow-y-auto">
 
         {currentCategory?.products?.map(product => (
           <div

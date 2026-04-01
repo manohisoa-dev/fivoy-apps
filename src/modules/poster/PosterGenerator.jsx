@@ -12,6 +12,7 @@ import PosterSearch from "./components/PosterSearch";
 import PosterPreview from "./components/PosterPreview";
 import PosterModal from "./components/PosterModal";
 import PosterUpload from "./components/PosterUpload";
+import html2canvas from "html2canvas";
 
 const PosterGenerator = () => {
 
@@ -270,144 +271,27 @@ const PosterGenerator = () => {
 
   // Génération PDF réelle avec jsPDF
   const generatePDF = async () => {
-    if (selectedPosters.length === 0) {
-      alert('Veuillez ajouter au moins un poster avant de générer le PDF.');
-      return;
-    }
+    if (!exportRef.current) return;
 
-    try {
-      const pdf = new jsPDF({
-        orientation: orientation === 'portrait' ? 'p' : 'l',
-        unit: 'mm',
-        format: 'a4'
-      });
+    const canvas = await html2canvas(exportRef.current, {
+      scale: 2,
+      useCORS: true
+    });
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 2;
-      const availableWidth = pageWidth - (margin * 2);
-      const availableHeight = pageHeight - (margin * 2);
+    const imgData = canvas.toDataURL("image/jpeg", 1.0);
 
-      // Calcul des dimensions par poster
-      const posterWidth = availableWidth / columns;
+    const pdf = new jsPDF({
+      orientation: orientation === "portrait" ? "p" : "l",
+      unit: "mm",
+      format: "a4"
+    });
 
-      // Calcul fixe et simple selon le nombre de posters
-      let maxRows;
-      let posterHeight;
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
-      if (columns === 1) {
-        if (columns === 1) {
-          maxRows = 1; // 1 image par ligne
-          posterHeight = availableHeight; // prend toute la hauteur dispo
-        }else if (selectedPosters.length > 1  && selectedPosters.length <= 2) {
-          maxRows = 2; // Max 2 images par page
-        } else if (selectedPosters.length <= 4) {
-          maxRows = Math.min(4, selectedPosters.length); // Max 4 images par page
-        } else {
-          maxRows = 5; // Max 5 images par page pour économiser le papier
-        }
-        posterHeight = availableHeight / maxRows;
-      } else {
-        // Pour plusieurs colonnes
-        maxRows = Math.floor(availableHeight / (posterWidth * 1.4));
-        posterHeight = availableHeight / maxRows;
-      }
+    pdf.addImage(imgData, "JPEG", 0, 0, pageWidth, pageHeight);
 
-      const postersPerPage = columns * maxRows;
-
-      let currentPage = 0;
-      let positionX = margin;
-      let positionY = margin;
-
-      // Fonction pour charger une image en base64
-      const loadImageAsBase64 = (src) => {
-        return new Promise((resolve, reject) => {
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            resolve(canvas.toDataURL('image/jpeg', 0.8));
-          };
-          img.onerror = reject;
-          img.src = src;
-        });
-      };
-
-      // Traitement de chaque poster
-      for (let i = 0; i < selectedPosters.length; i++) {
-        const poster = selectedPosters[i];
-        
-        // Nouvelle page si nécessaire
-        if (i > 0 && i % postersPerPage === 0) {
-          pdf.addPage();
-          positionX = margin;
-          positionY = margin;
-        }
-
-        try {
-          let imageSrc = getPosterUrl(poster);
-          
-          // Charger l'image
-          if (poster.source === 'tmdb') {
-            // Pour TMDB, charger depuis l'URL
-            imageSrc = await loadImageAsBase64(imageSrc);
-          }
-          // Pour les images locales, elles sont déjà en base64
-
-          // Ajouter l'image au PDF
-          pdf.addImage(
-            imageSrc,
-            'JPEG',
-            positionX,
-            positionY,
-            posterWidth - 1, // Petite marge entre posters
-            posterHeight - 1,
-            undefined,
-            'FAST'
-          );
-
-        } catch (error) {
-          console.error('Erreur lors du chargement de l\'image:', error);
-          
-          // Dessiner un rectangle de remplacement
-          pdf.setDrawColor(200, 200, 200);
-          pdf.rect(positionX, positionY, posterWidth - 2, posterHeight - 2);
-          pdf.setFontSize(10);
-          pdf.text('Image non disponible', positionX + 5, positionY + posterHeight / 2);
-        }
-
-        // Calculer la position suivante
-        positionX += posterWidth;
-        if ((i + 1) % columns === 0) {
-          positionX = margin;
-          positionY += posterHeight - 0.5; // juste -0.5 pour une petite séparation
-        }
-      }
-
-      // Télécharger le PDF
-      const filename = `fivoy-posters-${new Date().getTime()}.pdf`;
-      pdf.save(filename);
-
-      // Notification de succès
-      if (window.Swal) {
-        window.Swal.fire({
-          title: 'PDF généré avec succès!',
-          text: `${selectedPosters.length} posters • ${orientation} • ${columns} colonnes`,
-          icon: 'success',
-          confirmButtonText: 'OK'
-        });
-      } else {
-        alert(`PDF téléchargé avec succès!\n${selectedPosters.length} posters inclus`);
-      }
-
-    } catch (error) {
-      console.error('Erreur génération PDF:', error);
-      alert('Erreur lors de la génération du PDF. Vérifiez la console pour plus de détails.');
-    }
+    pdf.save(`fivoy-posters-${Date.now()}.pdf`);
   };
 
   return (
