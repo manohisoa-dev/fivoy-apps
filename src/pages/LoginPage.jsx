@@ -11,6 +11,7 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const doodles = [
     "/images/login-1.png",
@@ -108,12 +109,20 @@ function LoginPage() {
           </div>
 
           {/* Illustration */}
-          <div className="mt-8">
+          <div className="mt-8 relative">
+
+            {!imageLoaded && (
+              <div className="w-full max-w-lg h-[250px] bg-gray-700/30 rounded-xl animate-pulse" />
+            )}
+
             <img
               key={currentDoodle}
               src={doodles[currentDoodle]}
               alt="Illustration Fivoy"
-              className="w-full max-w-lg drop-shadow-2xl animate-fadeIn transition-all duration-700"
+              onLoad={() => setImageLoaded(true)}
+              className={`w-full max-w-lg drop-shadow-2xl transition-all duration-700 ${
+                imageLoaded ? "opacity-100" : "opacity-0 absolute"
+              }`}
             />
           </div>
         </div>
