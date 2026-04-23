@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import api from "../api/api";
 import Swal from "sweetalert2";
 import { Loader2, CheckCircle } from "lucide-react";
 
@@ -31,12 +32,25 @@ function LoginPage() {
 
   const [showPassword, setShowPassword] = useState(false);
 
+  const [step, setStep] = useState("");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      setLoading(true);
+      setStep("Connexion...");
+
       await login(email, password);
+
+      setStep("Chargement des données...");
+
+      await Promise.all([
+        api.get("/pos/stats/today"),
+        api.get("/sales"),
+      ]);
+
       navigate("/");
     } catch {
       Swal.fire({
@@ -50,16 +64,8 @@ function LoginPage() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentDoodle((prev) => (prev + 1) % doodles.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [doodles.length]);
-
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className="min-h-screen flex bg-black from-gray-900 via-gray-800 to-gray-900">
 
       {/* LEFT SIDE BRANDING */}
       <div className="hidden lg:flex flex-col justify-center w-1/2 px-20 text-white relative overflow-hidden">
@@ -74,23 +80,12 @@ function LoginPage() {
             Fivoy
           </h1>
 
-          <p 
-            key={currentDoodle}
-            className="text-xl text-gray-300 mb-8 leading-relaxed transition-all duration-500">
-            {messages[currentDoodle]}
+          <h1 className="text-5xl font-extrabold mb-6">
+            Votre boutique peut vendre <span className="text-primary">2x plus</span>.
+          </h1>
 
-            <div className="flex gap-2 mt-4">
-              {messages.map((_, index) => (
-                <div
-                  key={index}
-                  className={`h-2 rounded-full transition-all duration-300 animate-pulse ${
-                    index === currentDoodle
-                      ? "w-6 bg-violet-500"
-                      : "w-2 bg-gray-500"
-                  }`}
-                />
-              ))}
-            </div>
+          <p className="text-gray-300 mb-8 text-lg">
+            Fivoy analyse vos ventes, recommande quoi vendre et contrôle chaque Ariary.
           </p>
 
           <div className="space-y-4 text-gray-300">
@@ -108,33 +103,63 @@ function LoginPage() {
             </div>
           </div>
 
-          {/* Illustration */}
-          <div className="mt-8 relative">
+          <div className="grid grid-cols-3 gap-4 mb-8">
 
-            {!imageLoaded && (
-              <div className="w-full max-w-lg h-[250px] bg-gray-700/30 rounded-xl animate-pulse" />
-            )}
+            <div className="bg-white/5 p-4 rounded-xl text-center">
+              <div className="text-xl font-bold text-primary">+32%</div>
+              <div className="text-xs text-gray-400">Ventes moyennes</div>
+            </div>
 
-            <img
-              key={currentDoodle}
-              src={doodles[currentDoodle]}
-              alt="Illustration Fivoy"
-              onLoad={() => setImageLoaded(true)}
-              className={`w-full max-w-lg drop-shadow-2xl transition-all duration-700 ${
-                imageLoaded ? "opacity-100" : "opacity-0 absolute"
-              }`}
-            />
+            <div className="bg-white/5 p-4 rounded-xl text-center">
+              <div className="text-xl font-bold text-primary">5s</div>
+              <div className="text-xs text-gray-400">Par vente</div>
+            </div>
+
+            <div className="bg-white/5 p-4 rounded-xl text-center">
+              <div className="text-xl font-bold text-primary">0 erreur</div>
+              <div className="text-xs text-gray-400">Caisse fiable</div>
+            </div>
+
           </div>
+
+          <div className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-3 animate-fadeIn hover:scale-[1.02] transition">
+
+            <div className="text-sm text-gray-300">🔥 En ce moment</div>
+
+            <div className="flex justify-between text-sm">
+              <span>12 ventes aujourd’hui</span>
+              <span className="text-green-400">+85 000 Ar</span>
+            </div>
+
+            <div className="flex justify-between text-sm">
+              <span>Fast & Furious 10</span>
+              <span className="text-primary">Top 1</span>
+            </div>
+
+          </div>
+
+          <div className="flex gap-6 mt-10 text-xs text-gray-400">
+            <span>📶 Fonctionne offline</span>
+            <span>⚡ Ultra rapide</span>
+            <span>🇲🇬 Pensé pour Madagascar</span>
+          </div>
+
         </div>
       </div>
 
       {/* RIGHT SIDE LOGIN */}
       <div className="flex flex-1 items-center justify-center px-6">
-        <div className="w-full max-w-md bg-white/95 backdrop-blur-lg rounded-2xl shadow-xl p-8 animate-fadeIn border border-gray-100">
+        <div className="w-full max-w-md bg-black/40 backdrop-blur-xl border border-white/10 backdrop-blur-lg rounded-2xl shadow-xl p-8 animate-fadeIn border border-gray-100">
 
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+          <h2 className="text-2xl font-bold text-gray-500 mb-6 text-center">
             Connexion à votre espace
           </h2>
+          <p className="text-gray-500 text-center text-md mb-4">
+            Suivez vos ventes, contrôlez votre caisse et découvrez ce qui se vend vraiment.
+          </p>
+          <p className="bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2 rounded-lg text-xs mb-4">
+            ⚠️ La plupart des boutiques perdent de l'argent sans le savoir.
+          </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
@@ -144,7 +169,7 @@ function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none transition bg-gray-50"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition bg-gray-50"
             />
 
             <div className="relative">
@@ -154,7 +179,7 @@ function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none transition bg-gray-50"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary  focus:border-transparent outline-none transition bg-gray-50"
               />
 
               <button
@@ -174,12 +199,16 @@ function LoginPage() {
               {loading ? (
                 <>
                   <Loader2 className="animate-spin w-4 h-4 mr-2" />
-                  Connexion...
+                  {step}
                 </>
               ) : (
-                "Se connecter"
+                "Accéder à mon business"
               )}
             </button>
+
+            <p className="text-xs text-gray-500 mt-3 text-center">
+              🔒 Données sécurisées • Fonctionne même avec une connexion faible
+            </p>
           </form>
 
           <div className="mt-6 text-center text-sm text-gray-600">
