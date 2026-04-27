@@ -1,15 +1,13 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { ShoppingCart, Search, Trash2, Pencil, Download } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ShoppingCart, Search, Download } from "lucide-react";
 import SalesTable from "./SalesTable";
-import { loadFromStorage, saveToStorage, exportArrayToCSV } from "../../utils/storage";
+import { saveToStorage, exportArrayToCSV } from "../../utils/storage";
 import { fetchSales, createSale, updateSale, deleteSale as deleteSaleDb } from "./salesApi";
-import { useLoadingStore } from '../../store/loading';
 import DailyCash from "./DailyCash";
 
 const STORAGE_KEY = "fivoy_sales_v1";
 
 const SalesPage = () => {
-  const { withLoading } = useLoadingStore.getState();
   const [sales, setSales] = useState([]);
   const [query, setQuery] = useState("");
   const [editingSale, setEditingSale] = useState(null); 
@@ -26,19 +24,15 @@ const SalesPage = () => {
   const loadPage = async () => {
     setLoading(true);
     try {
-      const salesList = await fetchSales();
+      const result = await fetchSales({
+        date: selectedDate,
+        page,
+        pageSize,
+      });
 
-      const filtered = salesList.filter(s => s.date === selectedDate);
-
-      setSales(filtered);
-      setTotalCount(filtered.length);
-
-      const total = filtered.reduce(
-        (sum, s) => sum + Number(s.total || 0),
-        0
-      );
-
-      setTotalJour(total);
+      setSales(result.data);
+      setTotalCount(result.pagination?.total ?? 0);
+      setTotalJour(Number(result.total_global || 0));
 
     } catch (e) {
       console.error(e);
@@ -50,23 +44,12 @@ const SalesPage = () => {
 useEffect(() => {
   loadPage();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [selectedDate, page, pageSize, query]);
+}, [selectedDate, page, pageSize]);
 
   // Sauvegarde automatique
   useEffect(() => {
     saveToStorage(STORAGE_KEY, sales);
   }, [sales]);
-
-  const filtered = useMemo(() => {
-    if (!query.trim()) return sales;
-    const q = query.toLowerCase();
-    return sales.filter((s) =>
-      [s.client, s.notes, s.modePaiement, ...(s.items || []).map(i => i.name)]
-        .filter(Boolean)
-        .some((field) => field.toLowerCase().includes(q))
-    );
-  }, [query, sales]);
-
 
  const handleSave = async (sale) => {
   if (saving) return;               // évite double-clic / double Enter
@@ -130,11 +113,11 @@ useEffect(() => {
   };
 
   const handleExportCSV = () => {
-    if (filtered.length === 0) {
+    if (sales.length === 0) {
       alert("Aucune vente à exporter.");
       return;
     }
-    const flat = filtered.map(s => ({
+    const flat = sales.map(s => ({
       id: s.id,
       date: s.date,
       client: s.client || "",
@@ -226,7 +209,7 @@ useEffect(() => {
             </div>
             <div className="bg-white rounded-lg shadow-lg p-4">
             <SalesTable
-                sales={filtered}
+                sales={sales}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 loading={loading}
@@ -236,7 +219,7 @@ useEffect(() => {
                 totalCount={totalCount}
             />
 
-              {filtered.length === 0 && (
+              {sales.length === 0 && (
                 <p className="text-center text-gray-500 py-6">Aucune vente pour le moment.</p>
               )}
             </div>

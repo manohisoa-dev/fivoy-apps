@@ -34,14 +34,28 @@ export const mapDbToSale = (row) => ({
    FETCH ALL
 =========================== */
 
-export const fetchSales = async () => {
-  const response = await api.get("/sales");
+export const fetchSales = async ({
+  date,
+  page = 1,
+  pageSize = 10,
+} = {}) => {
+  const response = await api.get("/sales", {
+    params: {
+      page,
+      per_page: pageSize,
+      ...(date ? { date } : {}),
+    },
+  });
 
   const rows = Array.isArray(response.data)
     ? response.data
     : response.data.data;
 
-  return rows.map(mapDbToSale);
+  return {
+    data: rows.map(mapDbToSale),
+    pagination: response.data.pagination,
+    total_global: response.data.total_global,
+  };
 };
 
 
@@ -53,10 +67,8 @@ export const fetchSalesByDatePaged = async ({
   date,
   page = 1,
   pageSize = 10,
-  q = "",
 }) => {
-  const response = await api.get("/sales");
-  return response.data.data;
+  return fetchSales({ date, page, pageSize });
 };
 
 /* ===========================
