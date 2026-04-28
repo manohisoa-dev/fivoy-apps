@@ -79,10 +79,13 @@ const DashboardPage = () => {
   const salesByCategoryData = dashboardStats?.sales_by_category || [];
   const expensesCategoryData = dashboardStats?.expenses_by_category || [];
   const salesByHourData = dashboardStats?.sales_by_hour || [];
-  const topSalesHours = [...salesByHourData]
+  const fallbackTopSalesHours = [...salesByHourData]
     .filter((item) => Number(item.total) > 0)
     .sort((a, b) => Number(b.total) - Number(a.total))
     .slice(0, 3);
+  const topSalesHours = dashboardStats?.top_hours || fallbackTopSalesHours;
+  const lowSalesHours = dashboardStats?.low_hours || [];
+  const activityInsights = dashboardStats?.insights || [];
 
   if (loading) {
     return (
@@ -288,6 +291,34 @@ const DashboardPage = () => {
               </div>
             )}
           </div>
+          {activityInsights.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+              {activityInsights.map((insight) => {
+                const isLowInsight = insight.toLowerCase().includes("creuse");
+
+                return (
+                  <p
+                    key={insight}
+                    className={`px-4 py-3 rounded text-sm font-medium ${
+                      isLowInsight ? "bg-amber-50 text-amber-700" : "bg-green-50 text-green-700"
+                    }`}
+                  >
+                    {isLowInsight ? "⚠️ " : "💡 "}
+                    {insight}
+                  </p>
+                );
+              })}
+            </div>
+          )}
+          {lowSalesHours.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {lowSalesHours.map((item) => (
+                <span key={item.hour} className="px-3 py-1 bg-amber-50 text-amber-700 text-sm font-medium rounded">
+                  {formatHour(item.hour)}: {Number(item.total)} vente(s)
+                </span>
+              ))}
+            </div>
+          )}
           {salesByHourData.some((item) => Number(item.total) > 0) ? (
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={salesByHourData}>
