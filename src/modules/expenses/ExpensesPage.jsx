@@ -23,6 +23,12 @@ const ExpensesPage = () => {
   // États pour la pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    last_page: 1,
+    from: 0,
+    to: 0,
+  });
   
   // États pour le filtrage
   const [startDate, setStartDate] = useState('');
@@ -45,13 +51,27 @@ const ExpensesPage = () => {
   const loadExpenses = async () => {
     try {
       await withLoading(async () => {
-        const response = await api.get("/expenses");
+        const response = await api.get("/expenses", {
+          params: {
+            page: currentPage,
+            per_page: itemsPerPage,
+            expense_category_id: selectedCategory || undefined,
+            start_date: startDate || undefined,
+            end_date: endDate || undefined,
+          },
+        });
         const expenseData = Array.isArray(response.data)
           ? response.data
           : response.data.data;
 
         setExpenses(expenseData || []);
         setFilteredExpenses(expenseData || []);
+        setPagination({
+          total: response.data.total || (expenseData || []).length,
+          last_page: response.data.last_page || 1,
+          from: response.data.from || 0,
+          to: response.data.to || 0,
+        });
       
         // Calculer le total général
         const total = expenseData.reduce((sum, expense) => sum + Number(expense.amount), 0);
@@ -69,29 +89,6 @@ const ExpensesPage = () => {
     }
   };
 
-  // Fonction de filtrage
-  const applyFilters = () => {
-    let filtered = [...expenses];
-    
-    // Filtrer par date de début
-    if (startDate) {
-      filtered = filtered.filter(expense => expense.date >= startDate);
-    }
-    
-    // Filtrer par date de fin
-    if (endDate) {
-      filtered = filtered.filter(expense => expense.date <= endDate);
-    }
-    
-    // Filtrer par catégorie
-    if (selectedCategory) {
-      filtered = filtered.filter(expense => expense.expense_category_id === selectedCategory);
-    }
-    
-    setFilteredExpenses(filtered);
-    setCurrentPage(1); // Reset à la première page
-  };
-
   // Réinitialiser les filtres
   const resetFilters = () => {
     setStartDate('');
@@ -102,13 +99,12 @@ const ExpensesPage = () => {
   };
 
   useEffect(() => {
-    loadExpenses();
     loadCategories();
   }, []);
 
   useEffect(() => {
-    applyFilters();
-  }, [startDate, endDate, selectedCategory, expenses]);
+    loadExpenses();
+  }, [currentPage, startDate, endDate, selectedCategory]);
 
   const handleSaveExpense = async (form) => {
     try {
@@ -186,15 +182,9 @@ const ExpensesPage = () => {
     });
   };
 
-  const getUniqueCategories = () => {
-    return [...new Set(expenses.map(expense => expense.category?.name))];
-  };
-
   // Pagination
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentExpenses = filteredExpenses.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredExpenses.length / itemsPerPage);
+  const currentExpenses = filteredExpenses;
+  const totalPages = pagination.last_page || 1;
 
   const paginate = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
@@ -286,7 +276,10 @@ const ExpensesPage = () => {
               <input
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -298,7 +291,10 @@ const ExpensesPage = () => {
               <input
                 type="date"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -309,12 +305,15 @@ const ExpensesPage = () => {
               </label>
               <select
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Toutes les catégories</option>
-                {getUniqueCategories().map(category => (
-                  <option key={category} value={category}>{category}</option>
+                {categories.map(category => (
+                  <option key={category.id} value={category.id}>{category.name}</option>
                 ))}
               </select>
             </div>
@@ -330,7 +329,7 @@ const ExpensesPage = () => {
           </div>
           
           <div className="mt-4 text-sm text-gray-600">
-            {filteredExpenses.length} dépense(s) trouvée(s)
+            {pagination.total} dépense(s) trouvée(s)
           </div>
         </div>
 
@@ -446,7 +445,7 @@ const ExpensesPage = () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <DollarSign className="w-5 h-5 text-green-600" />
-              Dépenses ({filteredExpenses.length})
+              Dépenses ({pagination.total})
             </h2>
             
             {/* Info pagination */}
@@ -508,7 +507,7 @@ const ExpensesPage = () => {
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-6 pt-4 border-t">
               <div className="text-sm text-gray-700">
-                Affichage de {indexOfFirstItem + 1} à {Math.min(indexOfLastItem, filteredExpenses.length)} sur {filteredExpenses.length} résultats
+                Affichage de {pagination.from} à {pagination.to} sur {pagination.total} résultats
               </div>
               
               <div className="flex items-center gap-2">
