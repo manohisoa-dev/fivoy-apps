@@ -6,6 +6,7 @@ import api from "../../api/api";
 import { AuthContext } from "../../context/AuthContext";
 
 const COLORS = ["#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899", "#06B6D4", "#84CC16"];
+const formatHour = (hour) => `${String(hour).padStart(2, "0")}h`;
 
 const DashboardPage = () => {
   const [dashboardStats, setDashboardStats] = useState(null);
@@ -77,6 +78,11 @@ const DashboardPage = () => {
   const trendData = dashboardStats?.trend || [];
   const salesByCategoryData = dashboardStats?.sales_by_category || [];
   const expensesCategoryData = dashboardStats?.expenses_by_category || [];
+  const salesByHourData = dashboardStats?.sales_by_hour || [];
+  const topSalesHours = [...salesByHourData]
+    .filter((item) => Number(item.total) > 0)
+    .sort((a, b) => Number(b.total) - Number(a.total))
+    .slice(0, 3);
 
   if (loading) {
     return (
@@ -264,6 +270,40 @@ const DashboardPage = () => {
               <Line type="monotone" dataKey="depenses" stroke="#EF4444" strokeWidth={2} name="Depenses" dot={{ fill: "#EF4444" }} />
             </LineChart>
           </ResponsiveContainer>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-primary" />
+              Heures de forte activite
+            </h2>
+            {topSalesHours.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {topSalesHours.map((item) => (
+                  <span key={item.hour} className="px-3 py-1 bg-blue-50 text-primary text-sm font-medium rounded">
+                    {formatHour(item.hour)}: {Number(item.total)} vente(s)
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+          {salesByHourData.some((item) => Number(item.total) > 0) ? (
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={salesByHourData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="hour" tickFormatter={formatHour} interval={1} />
+                <YAxis allowDecimals={false} />
+                <Tooltip
+                  formatter={(value) => [`${Number(value)} vente(s)`, "Ventes"]}
+                  labelFormatter={(hour) => formatHour(hour)}
+                />
+                <Bar dataKey="total" fill="#3B82F6" name="Ventes" />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-center text-gray-500 py-8">Aucune vente sur la periode selectionnee</p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
