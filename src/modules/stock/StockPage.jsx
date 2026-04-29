@@ -3,6 +3,8 @@ import { AlertTriangle, CheckCircle2, Package, Plus, RefreshCcw, X } from "lucid
 import Swal from "sweetalert2";
 import api from "../../api/api";
 
+const normalizeStockLabel = (name = "") => name.replace(/^Achat\s+/i, "").trim();
+
 const statusConfig = {
   ok: {
     label: "OK",
@@ -29,6 +31,7 @@ const statusConfig = {
 
 const StockPage = () => {
   const [items, setItems] = useState([]);
+  const [stockableCategories, setStockableCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showRestock, setShowRestock] = useState(false);
   const [restockForm, setRestockForm] = useState({
@@ -40,8 +43,25 @@ const StockPage = () => {
   const loadStock = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/stock/summary");
-      setItems(response.data?.items || []);
+      const [stockResponse, categoriesResponse] = await Promise.all([
+        api.get("/stock/summary"),
+        api.get("/expense-categories"),
+      ]);
+      const categories = categoriesResponse.data || [];
+      const filteredCategories = categories.filter((category) => category.is_stockable === true);
+      const dropdownCategories = filteredCategories
+        .map((category) => ({
+          ...category,
+          label: normalizeStockLabel(category.name),
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label, 'fr-FR'));
+
+      console.log("categories récupérées API", categories);
+      console.log("categories filtrées (is_stockable=true)", filteredCategories);
+      console.log("dropdown final (normalisé + trié)", dropdownCategories);
+
+      setItems(stockResponse.data?.items || []);
+      setStockableCategories(dropdownCategories);
     } catch (error) {
       console.error("Erreur chargement stock:", error);
       Swal.fire({
@@ -58,10 +78,30 @@ const StockPage = () => {
 
   useEffect(() => {
     loadStock();
+    const syncStock = () => loadStock();
+
+    window.addEventListener("focus", syncStock);
+    window.addEventListener("stockable-categories:updated", syncStock);
+
+    return () => {
+      window.removeEventListener("focus", syncStock);
+      window.removeEventListener("stockable-categories:updated", syncStock);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRestock = async (event) => {
     event.preventDefault();
+
+    if (!restockForm.stock_item_id) {
+      Swal.fire({
+        title: "Produit requis",
+        text: "Aucun produit stockable n'a ete selectionne.",
+        icon: "warning",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
 
     try {
       await api.post("/stock/restock", {
@@ -94,6 +134,11 @@ const StockPage = () => {
         confirmButtonText: "OK",
       });
     }
+  };
+
+  const stockDisplayName = (item) => {
+    const category = stockableCategories.find((option) => option.stock_item_id === item.id);
+    return category?.label || normalizeStockLabel(item.name);
   };
 
   if (loading) {
@@ -155,10 +200,13 @@ const StockPage = () => {
                 onChange={(e) => setRestockForm((prev) => ({ ...prev, stock_item_id: e.target.value }))}
                 className="border border-gray-300 rounded px-3 py-2"
                 required
+                disabled={stockableCategories.length === 0}
               >
-                <option value="">Produit stock</option>
-                {items.map((item) => (
-                  <option key={item.id} value={item.id}>{item.name}</option>
+                <option value="">
+                  {stockableCategories.length === 0 ? "Aucun produit stockable configuré" : "Produit stock"}
+                </option>
+                {stockableCategories.map((category) => (
+                  <option key={category.id} value={category.stock_item_id || category.id}>{category.label}</option>
                 ))}
               </select>
 
@@ -170,6 +218,7 @@ const StockPage = () => {
                 placeholder="Quantite"
                 className="border border-gray-300 rounded px-3 py-2"
                 required
+                disabled={stockableCategories.length === 0}
               />
 
               <input
@@ -178,15 +227,20 @@ const StockPage = () => {
                 onChange={(e) => setRestockForm((prev) => ({ ...prev, note: e.target.value }))}
                 placeholder="Note"
                 className="border border-gray-300 rounded px-3 py-2"
+                disabled={stockableCategories.length === 0}
               />
 
               <button
                 type="submit"
                 className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-hover"
+                disabled={stockableCategories.length === 0}
               >
                 Ajouter
               </button>
             </form>
+            {stockableCategories.length === 0 && (
+              <p className="mt-3 text-sm text-orange-600">Aucun produit stockable configuré</p>
+            )}
           </div>
         )}
 
@@ -206,7 +260,7 @@ const StockPage = () => {
                 <div key={item.name} className={`border rounded-lg shadow-sm p-5 ${status.cardClass}`}>
                   <div className="flex items-start justify-between gap-3 mb-4">
                     <div className="min-w-0">
-                      <h2 className="text-xl font-bold text-gray-800 truncate">{item.name}</h2>
+                      <h2 className="text-xl font-bold text-gray-800 truncate">{stockDisplayName(item)}</h2>
                       <p className="text-sm text-gray-600 mt-1">
                         {remaining.toLocaleString("fr-FR")} / {available.toLocaleString("fr-FR")} feuilles
                       </p>

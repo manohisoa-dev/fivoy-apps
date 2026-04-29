@@ -56,7 +56,10 @@ const ExpenseCategoriesPage = () => {
       setNewCategory("");
       setNewColor("#3B82F6");
       setNewStockDraft(emptyStockDraft);
-      loadCategories();
+      await loadCategories();
+
+      // Notifier StockPage de la mise à jour
+      window.dispatchEvent(new Event('stockable-categories:updated'));
     } catch (err) {
       console.error(err);
       Swal.fire({
@@ -84,7 +87,11 @@ const ExpenseCategoriesPage = () => {
 
     try {
       await api.put(`/expense-categories/${category.id}`, stockPayload(draft));
-      loadCategories();
+      await loadCategories();
+
+      // Notifier StockPage de la mise à jour
+      window.dispatchEvent(new Event('stockable-categories:updated'));
+
       Swal.fire({
         icon: "success",
         title: "Configuration stock enregistree",
@@ -252,14 +259,16 @@ const ExpenseCategoriesPage = () => {
                         Impacte le stock
                       </label>
 
-                      {(draft.is_stockable || category.is_stockable) && (
-                        <button
-                          onClick={() => handleSaveStockConfig(category)}
-                          className="mt-3 bg-primary text-white px-3 py-2 rounded-lg hover:opacity-90"
-                        >
-                          Enregistrer stock
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleSaveStockConfig(category)}
+                        className={`mt-3 px-3 py-2 rounded-lg font-medium transition-colors ${
+                          draft.is_stockable || category.is_stockable
+                            ? "bg-green-600 text-white hover:bg-green-700"
+                            : "bg-blue-600 text-white hover:bg-blue-700"
+                        }`}
+                      >
+                        {draft.is_stockable || category.is_stockable ? "Lié au stock ✔" : "Lier au stock"}
+                      </button>
                     </div>
                   </div>
                 );
