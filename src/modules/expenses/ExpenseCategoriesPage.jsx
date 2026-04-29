@@ -4,12 +4,8 @@ import { useNavigate } from "react-router-dom";
 import api from "../../api/api";
 import Swal from "sweetalert2";
 
-const STOCK_ITEMS = ["RAM A4", "Papier photo"];
-
 const emptyStockDraft = {
   is_stockable: false,
-  stock_item_name: "",
-  conversion_ratio: "",
 };
 
 const ExpenseCategoriesPage = () => {
@@ -34,8 +30,6 @@ const ExpenseCategoriesPage = () => {
         ...drafts,
         [category.id]: {
           is_stockable: Boolean(category.is_stockable),
-          stock_item_name: category.stock_item_name || "",
-          conversion_ratio: category.conversion_ratio || "",
         },
       }), {})
     );
@@ -47,8 +41,6 @@ const ExpenseCategoriesPage = () => {
 
   const stockPayload = (draft) => ({
     is_stockable: Boolean(draft.is_stockable),
-    stock_item_name: draft.is_stockable ? draft.stock_item_name : null,
-    conversion_ratio: draft.is_stockable ? Number(draft.conversion_ratio || 0) : 0,
   });
 
   const handleAddCategory = async () => {
@@ -150,44 +142,6 @@ const ExpenseCategoriesPage = () => {
     }));
   };
 
-  const StockFields = ({ draft, onChange }) => {
-    if (!draft.is_stockable) return null;
-
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
-            Nom du produit stock
-          </label>
-          <select
-            value={draft.stock_item_name || ""}
-            onChange={(e) => onChange("stock_item_name", e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-          >
-            <option value="">-- Choisir --</option>
-            {STOCK_ITEMS.map((item) => (
-              <option key={item} value={item}>{item}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
-            Quantite ajoutee
-          </label>
-          <input
-            type="number"
-            min="0"
-            value={draft.conversion_ratio || ""}
-            onChange={(e) => onChange("conversion_ratio", e.target.value)}
-            placeholder="Ex: 500"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-          />
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 py-6">
       <div className="max-w-4xl mx-auto px-4">
@@ -244,7 +198,6 @@ const ExpenseCategoriesPage = () => {
               Impacte le stock
             </label>
 
-            <StockFields draft={newStockDraft} onChange={updateNewStockDraft} />
           </div>
 
           <div className="space-y-3">
@@ -298,11 +251,6 @@ const ExpenseCategoriesPage = () => {
                         />
                         Impacte le stock
                       </label>
-
-                      <StockFields
-                        draft={draft}
-                        onChange={(field, value) => updateStockDraft(category.id, field, value)}
-                      />
 
                       {(draft.is_stockable || category.is_stockable) && (
                         <button
