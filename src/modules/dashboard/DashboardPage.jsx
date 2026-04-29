@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Calendar, BarChart3, Filter, RotateCcw } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Calendar, BarChart3, Filter, RotateCcw, Package, AlertTriangle } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import Swal from "sweetalert2";
 import api from "../../api/api";
@@ -10,6 +10,7 @@ const formatHour = (hour) => `${String(hour).padStart(2, "0")}h`;
 
 const DashboardPage = () => {
   const [dashboardStats, setDashboardStats] = useState(null);
+  const [stockSummary, setStockSummary] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [period, setPeriod] = useState("month");
@@ -34,11 +35,15 @@ const DashboardPage = () => {
     try {
       setLoading(true);
 
-      const response = await api.get("/dashboard/stats", {
-        params: getDashboardParams(),
-      });
+      const [response, stockResponse] = await Promise.all([
+        api.get("/dashboard/stats", {
+          params: getDashboardParams(),
+        }),
+        api.get("/stock/summary"),
+      ]);
 
       setDashboardStats(response.data);
+      setStockSummary(stockResponse.data?.items || []);
     } catch (error) {
       console.error("Erreur chargement dashboard:", error);
       Swal.fire({
@@ -86,6 +91,17 @@ const DashboardPage = () => {
   const topSalesHours = dashboardStats?.top_hours || fallbackTopSalesHours;
   const lowSalesHours = dashboardStats?.low_hours || [];
   const activityInsights = dashboardStats?.insights || [];
+  const stockStatusClass = (status) => {
+    if (status === "critical") {
+      return "bg-red-50 text-red-700 border-red-100";
+    }
+
+    if (status === "low") {
+      return "bg-amber-50 text-amber-700 border-amber-100";
+    }
+
+    return "bg-green-50 text-green-700 border-green-100";
+  };
 
   if (loading) {
     return (
@@ -249,6 +265,40 @@ const DashboardPage = () => {
               </p>
             </div>
           </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <Package className="w-5 h-5 text-primary" />
+            Stock intelligent
+          </h2>
+          {stockSummary.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {stockSummary.map((item) => {
+                const isAlert = item.status === "low" || item.status === "critical";
+
+                return (
+                  <div
+                    key={item.name}
+                    className={`border rounded-lg p-4 flex items-center justify-between gap-3 ${stockStatusClass(item.status)}`}
+                  >
+                    <div className="min-w-0">
+                      <p className="font-semibold text-gray-800 truncate">{item.name}</p>
+                      <p className="text-sm">
+                        {isAlert && <AlertTriangle className="w-4 h-4 inline-block mr-1 align-[-2px]" />}
+                        {Number(item.remaining || 0).toLocaleString("fr-FR")} feuilles restantes
+                      </p>
+                    </div>
+                    <span className="text-xs font-semibold uppercase tracking-wide">
+                      {item.status}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-center text-gray-500 py-4">Aucun stock disponible</p>
+          )}
         </div>
 
         <div className="bg-white rounded-lg shadow p-6 mb-6">
