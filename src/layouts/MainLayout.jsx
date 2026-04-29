@@ -1,7 +1,7 @@
 import { Outlet, Link } from "react-router-dom";
 import { useState, useContext, useRef, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { PrinterCheck, Clock, ShoppingCart,History , DollarSign, BarChart3, LogOut, ReceiptText, ClipboardList } from "lucide-react";
+import { PrinterCheck, Clock, ShoppingCart,History , DollarSign, BarChart3, LogOut, ReceiptText, ClipboardList, Package } from "lucide-react";
 import { User, Building2, ChevronDown } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import LoadingOverlay from "../components/LoadingOverlay";
@@ -130,6 +130,7 @@ const MainLayout = () => {
       label: "Analyse",
       items: [
         { to: "/dashboard", label: "Dashboard", icon: BarChart3 },
+        { to: "/stock", label: "Stock", icon: Package },
       ]
     }
   ];
