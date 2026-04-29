@@ -6,6 +6,7 @@ import RegisterPage from "./pages/RegisterPage";
 
 import MainLayout from "./layouts/MainLayout";
 import DashboardPage from "./modules/dashboard/DashboardPage";
+import StockPage from "./modules/stock/StockPage";
 import SalesPage from "./modules/sales/SalesPage";
 import ExpensesPage from "./modules/expenses/ExpensesPage";
 import ExpenseCategoriesPage from "./modules/expenses/ExpenseCategoriesPage";
@@ -40,6 +41,7 @@ function App() {
             <Route element={<MainLayout />}>
               <Route path="/" element={<CounterApp />} />
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/stock" element={<StockPage />} />
               <Route path="/sales-history" element={<SalesPage />} />
               <Route path="/expenses" element={<ExpensesPage />} />
               <Route path="/expense-categories" element={<ExpenseCategoriesPage />} />
