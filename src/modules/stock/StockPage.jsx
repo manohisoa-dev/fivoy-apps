@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AlertTriangle, CheckCircle2, Package, RefreshCcw } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Package, Plus, RefreshCcw, X } from "lucide-react";
 import Swal from "sweetalert2";
 import api from "../../api/api";
 
@@ -30,6 +30,12 @@ const statusConfig = {
 const StockPage = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showRestock, setShowRestock] = useState(false);
+  const [restockForm, setRestockForm] = useState({
+    stock_item_id: "",
+    quantity: "",
+    note: "",
+  });
 
   const loadStock = async () => {
     try {
@@ -40,7 +46,7 @@ const StockPage = () => {
       console.error("Erreur chargement stock:", error);
       Swal.fire({
         title: "Erreur chargement stock",
-        text: "Impossible de charger le résumé du stock.",
+        text: "Impossible de charger le resume du stock.",
         icon: "warning",
         confirmButtonText: "OK",
         confirmButtonColor: "#dc2626",
@@ -53,6 +59,42 @@ const StockPage = () => {
   useEffect(() => {
     loadStock();
   }, []);
+
+  const handleRestock = async (event) => {
+    event.preventDefault();
+
+    try {
+      await api.post("/stock/restock", {
+        stock_item_id: restockForm.stock_item_id,
+        quantity: Number(restockForm.quantity),
+        note: restockForm.note || "Reapprovisionnement manuel",
+      });
+
+      setShowRestock(false);
+      setRestockForm({
+        stock_item_id: "",
+        quantity: "",
+        note: "",
+      });
+      await loadStock();
+
+      Swal.fire({
+        title: "Stock mis a jour",
+        text: "Le reapprovisionnement manuel a ete enregistre.",
+        icon: "success",
+        timer: 1400,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Erreur reapprovisionnement:", error);
+      Swal.fire({
+        title: "Erreur",
+        text: "Impossible d'enregistrer le reapprovisionnement.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -74,17 +116,79 @@ const StockPage = () => {
               <Package className="w-8 h-8 text-primary" />
               Stock intelligent
             </h1>
-            <p className="text-gray-600">Suivi automatique basé sur les ventes enregistrées.</p>
+            <p className="text-gray-600">Suivi automatique base sur les ventes, depenses et reapprovisionnements.</p>
           </div>
 
-          <button
-            onClick={loadStock}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded hover:bg-primary-hover transition-colors"
-          >
-            <RefreshCcw className="w-4 h-4" />
-            Actualiser
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              onClick={() => setShowRestock(true)}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded hover:bg-primary-hover transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Reapprovisionner manuel
+            </button>
+            <button
+              onClick={loadStock}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 transition-colors"
+            >
+              <RefreshCcw className="w-4 h-4" />
+              Actualiser
+            </button>
+          </div>
         </div>
+
+        {showRestock && (
+          <div className="bg-white rounded-lg shadow p-5 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Reapprovisionnement manuel</h2>
+              <button
+                onClick={() => setShowRestock(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRestock} className="grid grid-cols-1 md:grid-cols-[1fr_180px_1fr_auto] gap-3">
+              <select
+                value={restockForm.stock_item_id}
+                onChange={(e) => setRestockForm((prev) => ({ ...prev, stock_item_id: e.target.value }))}
+                className="border border-gray-300 rounded px-3 py-2"
+                required
+              >
+                <option value="">Produit stock</option>
+                {items.map((item) => (
+                  <option key={item.id} value={item.id}>{item.name}</option>
+                ))}
+              </select>
+
+              <input
+                type="number"
+                min="1"
+                value={restockForm.quantity}
+                onChange={(e) => setRestockForm((prev) => ({ ...prev, quantity: e.target.value }))}
+                placeholder="Quantite"
+                className="border border-gray-300 rounded px-3 py-2"
+                required
+              />
+
+              <input
+                type="text"
+                value={restockForm.note}
+                onChange={(e) => setRestockForm((prev) => ({ ...prev, note: e.target.value }))}
+                placeholder="Note"
+                className="border border-gray-300 rounded px-3 py-2"
+              />
+
+              <button
+                type="submit"
+                className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-hover"
+              >
+                Ajouter
+              </button>
+            </form>
+          </div>
+        )}
 
         {items.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -93,8 +197,10 @@ const StockPage = () => {
               const StatusIcon = status.icon;
               const remaining = Number(item.remaining || 0);
               const initial = Number(item.initial || 0);
+              const added = Number(item.added || 0);
+              const available = Number(item.available || initial);
               const used = Number(item.used || 0);
-              const percent = initial > 0 ? Math.min(100, Math.round((remaining / initial) * 100)) : 0;
+              const percent = available > 0 ? Math.min(100, Math.round((remaining / available) * 100)) : 0;
 
               return (
                 <div key={item.name} className={`border rounded-lg shadow-sm p-5 ${status.cardClass}`}>
@@ -102,7 +208,7 @@ const StockPage = () => {
                     <div className="min-w-0">
                       <h2 className="text-xl font-bold text-gray-800 truncate">{item.name}</h2>
                       <p className="text-sm text-gray-600 mt-1">
-                        {remaining.toLocaleString("fr-FR")} / {initial.toLocaleString("fr-FR")} feuilles
+                        {remaining.toLocaleString("fr-FR")} / {available.toLocaleString("fr-FR")} feuilles
                       </p>
                     </div>
 
@@ -131,7 +237,11 @@ const StockPage = () => {
                       <span className="font-semibold text-gray-800">{initial.toLocaleString("fr-FR")}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Utilisé</span>
+                      <span className="text-gray-600">Ajoute</span>
+                      <span className="font-semibold text-gray-800">{added.toLocaleString("fr-FR")}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Utilise</span>
                       <span className="font-semibold text-gray-800">{used.toLocaleString("fr-FR")}</span>
                     </div>
                     <div className="flex items-center justify-between">
